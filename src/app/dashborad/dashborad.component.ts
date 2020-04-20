@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BanassiService } from 'src/services/banassi.service';
-import { InfoModule } from 'src/models/info/info.module';
+
 import { Observable } from 'rxjs';
 
 @Component({
@@ -10,21 +10,22 @@ import { Observable } from 'rxjs';
 })
 export class DashboradComponent implements OnInit {
   
-  private result;
+  private result:any;
 
   constructor(public banassiService:BanassiService) {
 
-   }
-
-  ngOnInit(): void {
-    this.result = this.banassiService.getTotalCasses()
-    .subscribe(cases => {
-      this.result = cases;
-      console.log("Result ========== "+this.result.toString());
-    });
-  
-    
   }
+
+  ngOnInit(){
+    this.banassiService.getTotalCases()
+    .subscribe(data => {
+      this.result = data;
+    }),err => {
+      console.log(err);
+    }
+  }
+
+
 
   
 

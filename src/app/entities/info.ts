@@ -1,16 +1,5 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-
-
-
-@NgModule({
-  declarations: [],
-  imports: [
-    CommonModule
-  ]
-})
-export class InfoModule { 
-   //الحالات المؤكدة
+export class Info {
+     //الحالات المؤكدة
    totalCases:number;
 
    //المتعافون
@@ -29,6 +18,4 @@ export class InfoModule {
        this.totalDeaths = totalDeaths;
        this.totalActiveCases = totalActiveCases;
    }
-  
-
 }
