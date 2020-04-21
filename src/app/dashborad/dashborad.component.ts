@@ -23,9 +23,16 @@ export type ChartOptions = {
 })
 export class DashboradComponent implements OnInit {
   @ViewChild('chart') chart: ChartComponent;
+  private totalCases:number;
+  private totalRecovred:number;
+  private totalDeaths:number;
+  private totalActiveCases:number;
+  private totalNewCasesToday:number;
+  private totalNewDeathsToday:number;
+  
   public chartOptions;
 
-  constructor() {
+  constructor(public banassiService:BanassiService) {
     this.chartOptions = {
       series: [
         {
@@ -44,16 +51,6 @@ export class DashboradComponent implements OnInit {
         categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"]
       }
     };
-  }
-  private totalCases:number;
-  private totalRecovred:number;
-  private totalDeaths:number;
-  private totalActiveCases:number;
-  private totalNewCasesToday:number;
-  private totalNewDeathsToday:number;
-  
-
-  constructor(public banassiService:BanassiService) {
   }
 
   ngOnInit(){
