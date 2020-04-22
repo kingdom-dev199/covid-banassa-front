@@ -7,8 +7,6 @@ import { Injectable } from '@angular/core';
 }) 
 export class BanassiService { 
  
- 
- 
   baseUrl ="https://api.thevirustracker.com/free-api?"; 
  
   constructor(private http:HttpClient) { 

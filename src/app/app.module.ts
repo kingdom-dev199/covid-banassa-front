@@ -3,7 +3,7 @@ import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
 import { DashboradComponent } from './dashborad/dashborad.component';
-import { NgApexchartsModule } from 'ng-apexcharts';
+import { ChartsModule } from 'ng2-charts';
 import{HttpClientModule} from '@angular/common/http';
 @NgModule({
   declarations: [
@@ -13,7 +13,8 @@ import{HttpClientModule} from '@angular/common/http';
   imports: [
     BrowserModule,
     HttpClientModule,
-    NgApexchartsModule
+    ChartsModule
+
   ],
   providers: [],
   bootstrap: [AppComponent]

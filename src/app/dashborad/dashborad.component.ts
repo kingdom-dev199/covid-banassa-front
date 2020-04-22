@@ -1,26 +1,9 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import {
-  ChartComponent,
-  ApexAxisChartSeries,
-  ApexChart,
-  ApexXAxis,
-  ApexDataLabels,
-  ApexTitleSubtitle,
-  ApexStroke,
-  ApexGrid
-} from "ng-apexcharts";
-
+import { ChartDataSets, ChartOptions } from 'chart.js';
 import { BanassiService } from 'src/services/banassi.service';
+import { BaseChartDirective,Label,Color } from 'ng2-charts';
+import * as pluginAnnotations from 'chartjs-plugin-annotation';
 
-export type ChartOptions = {
-  series: ApexAxisChartSeries;
-  chart: ApexChart;
-  xaxis: ApexXAxis;
-  dataLabels: ApexDataLabels;
-  grid: ApexGrid;
-  stroke: ApexStroke;
-  title: ApexTitleSubtitle;
-};
 
 @Component({
   selector: 'app-dashborad',
@@ -28,7 +11,7 @@ export type ChartOptions = {
   styleUrls: ['./dashborad.component.css']
 })
 export class DashboradComponent implements OnInit {
-  @ViewChild('chart') chart: ChartComponent;
+
    totalCases:number;
    totalRecovred:number;
    totalDeaths:number;
@@ -41,56 +24,92 @@ export class DashboradComponent implements OnInit {
   
   public chartOptions;
 
+  public lineChartData: ChartDataSets[] = [
+    
+  ];
+  public lineChartLabels: Label[] = [];
+  public lineChartOptions: (ChartOptions & { annotation: any }) = {
+    responsive: true,
+    scales: {
+      // We use this empty structure as a placeholder for dynamic theming.
+      xAxes: [{}],
+      yAxes: [
+        {
+          id: 'y-axis-0',
+          position: 'left',
+        },
+        {
+          id: 'y-axis-1',
+          position: 'right',
+          gridLines: {
+            color: 'rgba(255,0,0,0.3)',
+          },
+          ticks: {
+            fontColor: 'red',
+          }
+        }
+      ]
+    },
+    annotation: {
+      annotations: [
+        {
+          type: 'line',
+          mode: 'vertical',
+          scaleID: 'x-axis-0',
+          value: 'March',
+          borderColor: 'orange',
+          borderWidth: 2,
+          label: {
+            enabled: true,
+            fontColor: 'orange',
+            content: 'LineAnno'
+          }
+        },
+      ],
+    },
+  };
+  public lineChartColors: Color[] = [
+    { // grey
+      backgroundColor: 'rgba(148,159,177,0.2)',
+      borderColor: 'rgba(148,159,177,1)',
+      pointBackgroundColor: 'rgba(148,159,177,1)',
+      pointBorderColor: '#fff',
+      pointHoverBackgroundColor: '#fff',
+      pointHoverBorderColor: 'rgba(148,159,177,0.8)'
+    },
+    { // dark grey
+      backgroundColor: 'rgba(77,83,96,0.2)',
+      borderColor: 'rgba(77,83,96,1)',
+      pointBackgroundColor: 'rgba(77,83,96,1)',
+      pointBorderColor: '#fff',
+      pointHoverBackgroundColor: '#fff',
+      pointHoverBorderColor: 'rgba(77,83,96,1)'
+    },
+    { // red
+      backgroundColor: 'rgba(255,0,0,0.3)',
+      borderColor: 'red',
+      pointBackgroundColor: 'rgba(148,159,177,1)',
+      pointBorderColor: '#fff',
+      pointHoverBackgroundColor: '#fff',
+      pointHoverBorderColor: 'rgba(148,159,177,0.8)'
+    }
+  ];
+  public lineChartLegend = true;
+  public lineChartType = 'line';
+  public lineChartPlugins = [pluginAnnotations];
+
+  @ViewChild(BaseChartDirective, { static: true }) chart: BaseChartDirective;
+
+  
   constructor(public banassiService:BanassiService) {
     this.getDailycases();
     this.getTotaleCases();
-    this.chartOptions = {
-      series: [
-        {
-          name: "Desktops",
-          data: this.dailycases
-        }
-      ],
-      chart: {
-        height: 350,
-        type: "line",
-        zoom: {
-          enabled: false
-        }
-      },
-      dataLabels: {
-        enabled: false
-      },
-      stroke: {
-        curve: "straight"
-      },
-      title: {
-        text: "Product Trends by Month",
-        align: "left"
-      },
-      grid: {
-        row: {
-          colors: ["#f3f3f3", "transparent"], // takes an array which will be repeated on columns
-          opacity: 0.5
-        }
-      },
-      xaxis: {
-        categories: this.dates
-      }
-    };
-    console.log(this.chartOptions)
 
   }
-
   
   ngOnInit(){
-   
-  }
-
-
-
   
-
+  }
 
   private getTotaleCases() {
     this.banassiService.getInfoCovid()
@@ -115,15 +134,19 @@ export class DashboradComponent implements OnInit {
   private getDailycases() {
     this.banassiService.getInfoCovidStats()
       .subscribe((data: any)=> {
+        
         console.log(data.timelineitems);
-        this.dailycases = Object.values(data.timelineitems[0]).map((obj: any) => obj.new_daily_cases).splice(0, 7);
+         this.dailycases = Object.values(data.timelineitems[0]).map((obj: any) =>
+          obj.new_daily_cases).splice(0, 7);
+
+
         this.dates = Object.keys(data.timelineitems[0]).splice(0, 7);
       //   for (var i: number = 0; i < 8;i++){
       //     this.dataset.push({ data: this.dates[i], label: this.dailycases[i]})
       //  }
         console.log(this.dailycases);
         console.log(this.dates);
-        console.log(this.chartOptions.series.data);
+        console.log(this.chartOptions.series);
         console.log(this.chartOptions.xaxis.categories);
       
       }), err => {
