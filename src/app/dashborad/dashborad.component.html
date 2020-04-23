@@ -157,12 +157,15 @@
 
             <div class="w-full md:w-1/2 p-3">
                 <!--Graph Card-->
-                <div class="bg-white border rounded shadow">
-                    <div class="border-b p-3">
-                        <h5 class="font-bold uppercase text-gray-600">Graph</h5>
+                <div class="bg-white border rounded shadow 	">
+                    <div class="border-b p-3 " style="text-align:end">
+                        <h5 class="font-bold uppercase text-gray-600 ">مبيان تطور فيروس كورونا في المغرب</h5>
                     </div>
                     <div class="p-5">
-                        <div id="chart">   <apx-chart     [series]="chartOptions.series"     [chart]="chartOptions.chart"     [xaxis]="chartOptions.xaxis"     [dataLabels]="chartOptions.dataLabels"     [grid]="chartOptions.grid"     [stroke]="chartOptions.stroke"     [title]="chartOptions.title"   ></apx-chart> </div>
+                        <div *ngIf="chart">
+                            <canvas id="canvas">{{ chart }}</canvas>
+                        </div>
+
 
                     </div>
                 </div>
@@ -177,14 +180,12 @@
                     </div>
                     <div class="p-5">
                     <div id="chart">   
-                        <apx-chart    
-                        [series]="chartOptions.series"
-                                [chart]="chartOptions.chart"
-                                [xaxis]="chartOptions.xaxis"     
-                                [dataLabels]="chartOptions.dataLabels"     
-                                [grid]="chartOptions.grid"     
-                                [stroke]="chartOptions.stroke"     
-                                [title]="chartOptions.title"   ></apx-chart> </div>
+                       <!--  <jqxChart #myChart [width]="getWidth()" [height]="500" [title]="'Web Site Traffic Analysis'"
+                            [description]="'Daily unique visitors (stacked)'" [showLegend]="true" [enableAnimations]="true" [padding]="padding"
+                            [titlePadding]="titlePadding" [source]="dataAdapter" [xAxis]="xAxis" [valueAxis]="valueAxis"
+                            [seriesGroups]="seriesGroups" [colorScheme]="'scheme01'">
+                        </jqxChart> -->
+                    </div>
 
                     </div>
                 </div>
@@ -198,7 +199,13 @@
                         <h5 class="font-bold uppercase text-gray-600">Graph</h5>
                     </div>
                     <div class="p-5">
-                        <div id="chart">   <apx-chart     [series]="chartOptions.series"     [chart]="chartOptions.chart"     [xaxis]="chartOptions.xaxis"     [dataLabels]="chartOptions.dataLabels"     [grid]="chartOptions.grid"     [stroke]="chartOptions.stroke"     [title]="chartOptions.title"   ></apx-chart> </div>
+                        <div id="chart">   
+                           <!--  <jqxChart #myChart [width]="getWidth()" [height]="500" [title]="'Web Site Traffic Analysis'"
+                                [description]="'Daily unique visitors (stacked)'" [showLegend]="true" [enableAnimations]="true" [padding]="padding"
+                                [titlePadding]="titlePadding" [source]="dataAdapter" [xAxis]="xAxis" [valueAxis]="valueAxis"
+                                [seriesGroups]="seriesGroups" [colorScheme]="'scheme01'">
+                            </jqxChart> -->
+                        </div>
 
                     </div>
                 </div>
@@ -211,7 +218,13 @@
                     <div class="border-b p-3">
                         <h5 class="font-bold uppercase text-gray-600">Graph</h5>
                     </div>
-                        <div id="chart">   <apx-chart     [series]="chartOptions.series"     [chart]="chartOptions.chart"     [xaxis]="chartOptions.xaxis"     [dataLabels]="chartOptions.dataLabels"     [grid]="chartOptions.grid"     [stroke]="chartOptions.stroke"     [title]="chartOptions.title"   ></apx-chart> </div>
+                        <div id="chart">  
+                           <!--  <jqxChart #myChart [width]="getWidth()" [height]="500" [title]="'Web Site Traffic Analysis'"
+                                [description]="'Daily unique visitors (stacked)'" [showLegend]="true" [enableAnimations]="true" [padding]="padding"
+                                [titlePadding]="titlePadding" [source]="dataAdapter" [xAxis]="xAxis" [valueAxis]="valueAxis"
+                                [seriesGroups]="seriesGroups" [colorScheme]="'scheme01'">
+                            </jqxChart>  -->
+                        </div>
 
                     </div>
                 </div>

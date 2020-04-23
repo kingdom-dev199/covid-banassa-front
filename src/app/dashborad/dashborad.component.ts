@@ -1,26 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import {
-  ChartComponent,
-  ApexAxisChartSeries,
-  ApexChart,
-  ApexXAxis,
-  ApexDataLabels,
-  ApexTitleSubtitle,
-  ApexStroke,
-  ApexGrid
-} from "ng-apexcharts";
 
+import { Chart } from 'chart.js';
 import { BanassiService } from 'src/services/banassi.service';
 
-export type ChartOptions = {
-  series: ApexAxisChartSeries;
-  chart: ApexChart;
-  xaxis: ApexXAxis;
-  dataLabels: ApexDataLabels;
-  grid: ApexGrid;
-  stroke: ApexStroke;
-  title: ApexTitleSubtitle;
-};
 
 @Component({
   selector: 'app-dashborad',
@@ -28,7 +10,7 @@ export type ChartOptions = {
   styleUrls: ['./dashborad.component.css']
 })
 export class DashboradComponent implements OnInit {
-  @ViewChild('chart') chart: ChartComponent;
+
    totalCases:number;
    totalRecovred:number;
    totalDeaths:number;
@@ -38,59 +20,21 @@ export class DashboradComponent implements OnInit {
    dataset=[];
    dailycases=[];
    dates=[];
-  
-  public chartOptions;
+  chart = []; // This will hold our chart info
+
 
   constructor(public banassiService:BanassiService) {
-    this.getDailycases();
-    this.getTotaleCases();
-    this.chartOptions = {
-      series: [
-        {
-          name: "Desktops",
-          data: this.dailycases
-        }
-      ],
-      chart: {
-        height: 350,
-        type: "line",
-        zoom: {
-          enabled: false
-        }
-      },
-      dataLabels: {
-        enabled: false
-      },
-      stroke: {
-        curve: "straight"
-      },
-      title: {
-        text: "Product Trends by Month",
-        align: "left"
-      },
-      grid: {
-        row: {
-          colors: ["#f3f3f3", "transparent"], // takes an array which will be repeated on columns
-          opacity: 0.5
-        }
-      },
-      xaxis: {
-        categories: this.dates
-      }
-    };
-    console.log(this.chartOptions)
+   
 
   }
 
   
   ngOnInit(){
-   
+    this.getDailycases();
+    this.getTotaleCases();
+
+    
   }
-
-
-
-  
-
 
   private getTotaleCases() {
     this.banassiService.getInfoCovid()
@@ -116,18 +60,38 @@ export class DashboradComponent implements OnInit {
     this.banassiService.getInfoCovidStats()
       .subscribe((data: any)=> {
         console.log(data.timelineitems);
-        this.dailycases = Object.values(data.timelineitems[0]).map((obj: any) => obj.new_daily_cases).splice(0, 7);
-        this.dates = Object.keys(data.timelineitems[0]).splice(0, 7);
-      //   for (var i: number = 0; i < 8;i++){
-      //     this.dataset.push({ data: this.dates[i], label: this.dailycases[i]})
-      //  }
-        console.log(this.dailycases);
-        console.log(this.dates);
-        console.log(this.chartOptions.series.data);
-        console.log(this.chartOptions.xaxis.categories);
-      
-      }), err => {
-        console.log(err);
-      };
-  }
+        let dates = Object.keys(data.timelineitems[0]);
+        let dailycases = Object.values(data.timelineitems[0]).map((obj: any) => obj.new_daily_cases);
+        let new_daily_deaths = Object.values(data.timelineitems[0]).map((obj: any) => obj.new_daily_deaths);
+        let dailycasesss = Object.values(data.timelineitems[0]).map((obj: any) => obj.new_daily_cases);
+        let dailycasessss = Object.values(data.timelineitems[0]).map((obj: any) => obj.new_daily_cases);
+        this.chart = new Chart('canvas', {
+          type: 'line',
+          data: {
+            labels: dates.splice(dates.length - 7, dates.length),
+            datasets: [
+              {
+                data: Object.values(dailycases).splice(dailycases.length-7, dailycases.length),
+                borderColor: "#3cba9f",
+                fill: false
+              }
+              
+            ]
+          },
+          options: {
+            legend: {
+              display: false
+            },
+            scales: {
+              xAxes: [{
+                display: true
+              }],
+              yAxes: [{
+                display: true
+              }],
+            }
+          }
+        });
+      });
+    }
 }
