@@ -10,8 +10,8 @@ export class BanassiService {
  
  
   baseUrl ="https://api.thevirustracker.com/free-api?"; 
-  baseUrlBanassa ="http://banassa.com/api/"; 
-  baseUrlBanassa2 ="http://banassa.com/covidapi.php"; 
+  baseUrlBanassa ="https://banassa.com/api/"; 
+  baseUrlBanassa2 ="https://banassa.com/covidapi.php"; 
  
   constructor(private http:HttpClient) { 
      this.http = http; 
