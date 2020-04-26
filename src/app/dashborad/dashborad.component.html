@@ -1,11 +1,11 @@
-<nav id="header" class="bg-white fixed w-full z-10 top-0 pb-5 shadow">
+<nav id="header" class="bg-white  w-full z-10 top-0  shadow">
 
 
     <div class="w-full container mx-auto flex flex-wrap items-center mt-0 pt-3  pb-3 ">
 
-        <div class="w-1/2 pl-2 md:pl-0">
+        <div class="w-1/2 pl-2 md:pl-0 ">
             <a class="text-gray-900 text-base xl:text-xl no-underline hover:no-underline font-bold" href="#">
-                <i class="fas fa-sun text-orange-600 pr-3"></i> Banassa
+            <img style="height:60px ;width: 110px;" src="https://banassa.com/wp-content/uploads/2020/04/logopngcovid.png" />    
             </a>
         </div>
         <div class="w-1/2 pr-0">
@@ -13,10 +13,10 @@
 
                 <div class="relative text-sm">
                     <button id="userButton" class="flex items-center focus:outline-none mr-3">
-                        <img 
-                        src="https://covid.hespress.com/assets/images/covid19_maroc_logo.png" >
                         
                         
+                        <img style="height:60px ;width: 140px;"
+                            src="https://banassa.com/wp-content/uploads/2020/04/png-logofff-e1587860400509.png" alt="banassa" />
                     </button>
                     <div id="userMenu"
                         class="bg-white rounded shadow-md mt-2 absolute mt-12 top-0 right-0 min-w-full overflow-auto z-30 invisible">
@@ -49,7 +49,7 @@
 </nav>
 
 <!--Container-->
-<div class="container w-full mx-auto pt-20">
+<div class="container w-full mx-auto pt-2">
 
     <div class="w-full px-4 md:px-0 md:mt-8 mb-16 text-gray-800 leading-normal">
 
@@ -86,7 +86,7 @@
                         </div>
                         <div class="flex-1 text-right md:text-center">
                             <h5 class="font-bold uppercase text-gray-500">الحالات المستبعدة</h5>
-                            <h3 class="font-bold text-3xl">249 </h3>
+                            <h3 class="font-bold text-3xl">{{totalExclusCases}} </h3>
                         </div>
                     </div>
                 </div>
@@ -98,12 +98,16 @@
                     <div class="flex flex-row items-center">
                         <div class="flex-shrink pr-4">
                             <div class="rounded p-3 bg-yellow-600"><i
-                                    class="fas fa-user-plus fa-2x fa-fw fa-inverse"></i></div>
+                                    class="fas fa-user-plus  fa-fw fa-inverse"></i>
+                                    <label style="color:white"> {{totalNewCasesToday}} </label>
+
+                                </div>
                         </div>
                         <div class="flex-1 text-right md:text-center">
                             <h5 class="font-bold uppercase text-gray-500">الحالات المؤكدة</h5>
                             <h3 class="font-bold text-3xl">{{totalCases}} </h3>
                         </div>
+                      
                     </div>
                 </div>
                 <!--/Metric Card-->
@@ -188,15 +192,15 @@
                 <!--/Graph Card-->
             </div>
 
-            <div class="w-full md:w-1/2 xl:w-1/3 p-3">
+            <div class="w-full  p-3"style="float:right;">
                 <!--Graph Card-->
                 <div class="bg-white border rounded shadow">
                     <div class="border-b p-3">
                         <h5 class="font-bold uppercase text-gray-600">Graph</h5>
                     </div>
                     <div class="p-5">
-                        <div id="chart">   
-                      
+                        <div id="chart"  >   
+                            <canvas style="height: 400px;width: 100%;"id="canvas3">{{ chartPie }}</canvas>
                         </div>
 
                     </div>
@@ -204,14 +208,18 @@
                 <!--/Graph Card-->
             </div>
 
-            <div class="w-full md:w-1/2 xl:w-1/3 p-3">
+            <div class="w-full p-3">
                 <!--Graph Card-->
                 <div class="bg-white border rounded shadow">
                     <div class="border-b p-3">
                         <h5 class="font-bold uppercase text-gray-600">Graph</h5>
                     </div>
                         <div id="chart">  
-                  
+                            <div appVectorMap [mapHeight]="700"
+                            [mapName]="mapName"
+                            [seriesData]="seriesData"
+                            [markersData]="markersData"
+                            [mapOptions]="mapOptions" ></div>
                         </div>
 
                     </div>

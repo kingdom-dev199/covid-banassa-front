@@ -7,6 +7,7 @@ import{HttpClientModule} from '@angular/common/http';
 import { FooterComponent } from './footer/footer.component';
 import { CartsComponent } from './carts/carts.component';
 import { CartComponent } from './cart/cart.component';
+import { VectorMapDirective } from './vector-map.directive';
 
 @NgModule({
   declarations: [
@@ -14,7 +15,8 @@ import { CartComponent } from './cart/cart.component';
     DashboradComponent,
     FooterComponent,
     CartsComponent,
-    CartComponent
+    CartComponent,
+    VectorMapDirective
   ],
   imports: [
     BrowserModule,
