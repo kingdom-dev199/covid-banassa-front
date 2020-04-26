@@ -85,10 +85,10 @@ export class DashboradComponent implements OnInit, AfterViewInit {
   }
   ngOnInit(){
     this.getDailycases();
-    this.getTotaleCases();
-    this.getTotalDailyCases();
-    this.getBanassaCovidStats();
-    this.getTotalDailyByRigin();
+    // this.getTotaleCases();
+    // this.getTotalDailyCases();
+    // this.getBanassaCovidStats();
+    // this.getTotalDailyByRigin();
     }
 
   private getBanassaCovidStats() {
@@ -106,20 +106,20 @@ export class DashboradComponent implements OnInit, AfterViewInit {
     this.banassiService.getInfoCovid()
       .subscribe((data:any)  => {
         //الحالات المؤكدة
-        this.totalCases = data.countrydata[0].total_cases;
-        //المتعافون
-        this.totalRecovred = data.countrydata[0].total_recovered;
-        //الوفيات
-        this.totalDeaths = data.countrydata[0].total_deaths;
+        this.totalCases = data.features[data.features.length].attributes.Cas_confirmés;
+        // //المتعافون
+        // this.totalRecovred = data.countrydata[0].total_recovered;
+        // //الوفيات
+        // this.totalDeaths = data.countrydata[0].total_deaths;
 
 
-        //حالات تتلقى العلاج
-        this.totalActiveCases = data.countrydata[0].total_active_cases;
-        //optionnal if you want to added (not exist in hesspress )
-        // new Casse Today
-        this.totalNewCasesToday = data.countrydata[0].total_new_cases_today;
-        // new Death Today 
-        this.totalNewDeathsToday = data.countrydata[0].total_new_deaths_today;
+        // //حالات تتلقى العلاج
+        // this.totalActiveCases = data.countrydata[0].total_active_cases;
+        // //optionnal if you want to added (not exist in hesspress )
+        // // new Casse Today
+        // this.totalNewCasesToday = data.countrydata[0].total_new_cases_today;
+        // // new Death Today 
+        // this.totalNewDeathsToday = data.countrydata[0].total_new_deaths_today;
       }), err => {
         console.log(err);
       };

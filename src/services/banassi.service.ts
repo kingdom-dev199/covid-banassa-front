@@ -9,7 +9,7 @@ export class BanassiService {
  
  
  
-  baseUrl ="https://api.thevirustracker.com/free-api?"; 
+  baseUrl ="https://services3.arcgis.com/hjUMsSJ87zgoicvl/arcgis/rest/services/Covid_19/FeatureServer/5/query?where=1%3D1&outFields=*&outSR=4326&f=json"; 
   baseUrlBanassa ="https://banassa.com/api/"; 
   baseUrlBanassa2 ="https://banassa.com/covidapi.php"; 
  
@@ -18,7 +18,7 @@ export class BanassiService {
    } 
 
   getInfoCovid(){ 
-    return this.http.get(this.baseUrl +"countryTotal=MA"); 
+    return this.http.get(this.baseUrl); 
   } 
  
   getInfoCovidStats(){ 
