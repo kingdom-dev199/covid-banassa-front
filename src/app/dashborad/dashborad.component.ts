@@ -1,4 +1,8 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, NgZone } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import * as am4core from "@amcharts/amcharts4/core";
+import * as am4maps from "@amcharts/amcharts4/maps";
+import am4geodata_moroccoLow from "@amcharts/amcharts4-geodata/moroccoLow";
 
 import { Chart } from 'chart.js';
 import { BanassiService }from 'src/services/banassi.service';
@@ -34,196 +38,86 @@ export class DashboradComponent implements OnInit, AfterViewInit {
     scaleColors: ['#878c9a'],    // the color of the region in the serie
     regionFill: '#bbbec6'       // the base region color
   };
+  private chartMap: am4maps.MapChart;
 
-  constructor(public banassiService:BanassiService) {
-    this.mapName = 'world_mill_en';
-
-    this.mapOptions = {
-      markerColor: this.defaultColors.markerColor,
-      bgColor: this.defaultColors.bgColor,
-      scale: 1,
-      scaleColors: this.defaultColors.scaleColors,
-      regionFill: this.defaultColors.regionFill
-    };
-
-    this.seriesData = {
-      'CA': 11100,   // Canada
-      'DE': 2510,    // Germany
-      'FR': 3710,    // France
-      'AU': 5710,    // Australia
-      'GB': 8310,    // Great Britain
-      'RU': 9310,    // Russia
-      'BR': 6610,    // Brazil
-      'IN': 7810,    // India
-      'CN': 4310,    // China
-      'US': 839,     // USA
-      'SA': 410      // Saudi Arabia
-    };
-
-    this.markersData = [
-      { latLng: [41.90, 12.45], name: 'Vatican City' },
-      { latLng: [43.73, 7.41], name: 'Monaco' },
-      { latLng: [-0.52, 166.93], name: 'Nauru' },
-      { latLng: [-8.51, 179.21], name: 'Tuvalu' },
-      { latLng: [7.11, 171.06], name: 'Marshall Islands' },
-      { latLng: [17.3, -62.73], name: 'Saint Kitts and Nevis' },
-      { latLng: [3.2, 73.22], name: 'Maldives' },
-      { latLng: [35.88, 14.5], name: 'Malta' },
-      { latLng: [41.0, -71.06], name: 'New England' },
-      { latLng: [12.05, -61.75], name: 'Grenada' },
-      { latLng: [13.16, -59.55], name: 'Barbados' },
-      { latLng: [17.11, -61.85], name: 'Antigua and Barbuda' },
-      { latLng: [-4.61, 55.45], name: 'Seychelles' },
-      { latLng: [7.35, 134.46], name: 'Palau' },
-      { latLng: [42.5, 1.51], name: 'Andorra' }
-    ];
-
+  constructor(public banassiService:BanassiService,private datePipe: DatePipe,private zone: NgZone) {
+   
   }
 
   ngAfterViewInit(){
-
+ 
+  }
+  ngOnDestroy() {
+    this.zone.runOutsideAngular(() => {
+      if (this.chartMap) {
+        this.chartMap.dispose();
+      }
+    });
   }
   ngOnInit(){
-    this.getDailycases();
-    // this.getTotaleCases();
+  //  this.getDailycases();
+   this.getTotaleCases();
     // this.getTotalDailyCases();
     // this.getBanassaCovidStats();
-    // this.getTotalDailyByRigin();
+     this.getTotalDailyByRigin();
     }
 
-  private getBanassaCovidStats() {
-    this.banassiService.getBanassaCovidStats()
-      .subscribe((data:any)  => {
-        //الحالات المؤكدة
-        this.totalExclusCases = data[0].nb_cas;
-      
-      }), err => {
-        console.log(err);
-      };
-  }
+ 
   
   private getTotaleCases() {
     this.banassiService.getInfoCovid()
       .subscribe((data:any)  => {
         //الحالات المؤكدة
-        this.totalCases = data.features[data.features.length].attributes.Cas_confirmés;
-        // //المتعافون
-        // this.totalRecovred = data.countrydata[0].total_recovered;
+        console.log(data)
+        this.totalCases = data.features[data.features.length-1].attributes.Cas_confirmés;
+        //المتعافون
+        this.totalRecovred = data.features[data.features.length-1].attributes.Retablis;
         // //الوفيات
-        // this.totalDeaths = data.countrydata[0].total_deaths;
+         this.totalDeaths = data.features[data.features.length-1].attributes.Décédés;
 
 
-        // //حالات تتلقى العلاج
-        // this.totalActiveCases = data.countrydata[0].total_active_cases;
-        // //optionnal if you want to added (not exist in hesspress )
-        // // new Casse Today
-        // this.totalNewCasesToday = data.countrydata[0].total_new_cases_today;
-        // // new Death Today 
-        // this.totalNewDeathsToday = data.countrydata[0].total_new_deaths_today;
-      }), err => {
-        console.log(err);
-      };
-  }
+        //حالات تتلقى العلاج
+        this.totalActiveCases = this.totalCases-this.totalDeaths-this.totalRecovred;
 
-  private getDailycases() {
-    this.banassiService.getInfoCovidStats()
-      .subscribe((data: any)=> {
-        console.log(data.timelineitems);
-        let dates = Object.keys(data.timelineitems[0]);
-        let dailycases = Object.values(data.timelineitems[0]).map((obj: any) => obj.new_daily_cases);
-        let new_daily_deaths = Object.values(data.timelineitems[0]).map((obj: any) => obj.new_daily_deaths);
-        let total_recoveries = Object.values(data.timelineitems[0]).map((obj: any) => obj.total_recoveries);
- 
-        this.chart = new Chart('canvas', {
-          type: 'line',
-          data: {
-            labels: dates.splice(dates.length - 7, dates.length),
-            datasets: [
-              {
-                data: Object.values(dailycases).splice(dailycases.length-7, dailycases.length),
-                borderColor: "#3cba9f",
-                fill: false
-              },
-              // {
-              //   data: Object.values(new_daily_deaths).splice(new_daily_deaths.length-7, new_daily_deaths.length),
-              //   borderColor: "#b22222",
-              //   fill: false
-              // },
-              
-              {
-                data: Object.values(total_recoveries).splice(total_recoveries.length-7, total_recoveries.length),
-                borderColor: "#006400",
-                fill: false
-              }
-              
-            ]
-          },
-          options: {
-            legend: {
-              display: true
-            },
-            scales: {
-              xAxes: [{
-                display: true
-              }],
-              yAxes: [{
-                display: true
-              }],
-            }
-          }
-        });
-      });
-    }
-
-    private getTotalDailyCases(){
-      this.banassiService.getInfoCovidStats()
-      .subscribe((data: any)=> {
-        console.log(data.timelineitems);
-        let dates = Object.keys(data.timelineitems[0]);
-        //الحالات المؤكدة
-        let total_cases = Object.values(data.timelineitems[0]).map((obj: any) => obj.total_cases);
-        //حالات تتلقى العلاج  
-        let total_active_cases = Object.values(data.timelineitems[0]).map((obj: any) => obj.total_active_cases);
-       //  المتعافون 
-        let total_recoveries = Object.values(data.timelineitems[0]).map((obj: any) => obj.total_recoveries);
-        //  الوفيات
-        let total_deaths = Object.values(data.timelineitems[0]).map((obj: any) => obj.total_deaths);
+        this.totalExclusCases=data.features[data.features.length-1].attributes.Negative_tests;
+       
         
         this.chartAsc = new Chart('canvas2', {
           type: 'line',
           data: {
-            labels: dates.splice(dates.length - 7, dates.length),
+            labels: data.features.map((item:any)=>this.datePipe.transform(new Date(item.attributes.Date),"MM-dd")).splice(data.features.length-8,data.features.length-1),
             datasets: [
               {
-                data: Object.values(total_cases).splice(total_cases.length-7, total_cases.length),
+                label:'الحالات المؤكدة',
+                data: data.features.map((item:any)=>item.attributes.Cas_confirmés).splice(data.features.length-8,data.features.length-1),
                 borderColor: "#3cba9f",
                 fill: false
               },
 
               {
-                data: Object.values(total_active_cases).splice(total_active_cases.length-7, total_active_cases.length),
-                borderColor: "#FFA500",
+                label:'المتعافون',
+                data: data.features.map((item:any)=>item.attributes.Retablis).splice(data.features.length-8,data.features.length-1),
+                borderColor: "#3AB43A",
                 fill: false
               },
 
               {
-                data: Object.values(total_deaths).splice(total_deaths.length-7, total_deaths.length),
+                label:'الوفيات',
+                data: data.features.map((item:any)=>item.attributes.Décédés).splice(data.features.length-8,data.features.length-1),
                 borderColor: "#b22222",
                 fill: false
               },
               
-              {
-                data: Object.values(total_recoveries).splice(total_recoveries.length-7, total_recoveries.length),
-                borderColor: "#006400",
-                fill: false
-              }
+        
               
             ]
              
           },
           options: {
+            maintainAspectRatio: false,
             legend: {
-              display: true
+              display: true,
+              rtl:'right'
             },
             scales: {
               xAxes: [{
@@ -235,16 +129,75 @@ export class DashboradComponent implements OnInit, AfterViewInit {
             }
           }
         });
-        
-
-
-      });
-
-
       
-    }
+
+        this.chart = new Chart('canvas', {
+          type: 'bar',
+          data: {
+            labels: data.features.map((item:any)=>this.datePipe.transform(new Date(item.attributes.Date),"MM-dd")).splice(data.features.length-8,data.features.length-1),
+            datasets: [
+              {
+                label:'الحالات المؤكدة',
+                data: data.features.map((item:any)=>item.attributes.Cas_Jour).splice(data.features.length-8,data.features.length-1),
+                backgroundColor: "#3cba9f",
+                fill: false
+              },
+
+              {
+                label:'المتعافون',
+                data: data.features.map((item:any)=>item.attributes.Rtabalis_jour).splice(data.features.length-8,data.features.length-1),
+                backgroundColor: "#3AB43A",
+                fill: false
+              },
+
+              {
+                label:'الوفيات',
+                data: data.features.map((item:any)=>item.attributes.Deces_jour).splice(data.features.length-8,data.features.length-1),
+                backgroundColor: "#b22222",
+                fill: false
+              },
+              
+        
+              
+            ]
+             
+          },
+          options: {
+          
+            maintainAspectRatio: false,
+            legend: {
+              display: true,
+              rtl:'right'
+            },
+            scales: {
+              xAxes: [{
+                gridLines: {
+                  drawOnChartArea: false
+                },
+                display: true
+              }],
+              yAxes: [{
+                gridLines: {
+                  drawOnChartArea: false
+                },
+                display: true
+              }],
+            }
+          }
+        });
+
+
+
+      }), err => {
+        console.log(err);
+      };
+  }
+
+  
+
+    
     private getTotalDailyByRigin(){
-      this.banassiService.getBanassaCovidStatsByRegion()
+      this.banassiService.getInfoCovidByRegion()
       .subscribe((res: any)=> {
         console.log('test');
         console.log(res);
@@ -252,21 +205,11 @@ export class DashboradComponent implements OnInit, AfterViewInit {
         this.chartAsc = new Chart('canvas3', {
           type: 'pie',
           data: {
-            labels: ['طنجة تطوان الحسيمة',
-              'الشرق',
-              'فاس مكناس',
-              'الرباط سلا القنيطرة',
-              'بني ملال خنيفرة',
-              'الدار البيضاء سطات',
-              'مراكش آسفي',
-              'درعة تافيلالت',
-              'جهة سوس ماسة',
-              'جهة كلميم واد نون',
-              'جهة العيون الساقية الحمراء',
-              'جهة الداخلة وادي الذهب'],
+            labels: res.features.map((item:any)=>item.attributes.Nom_Région_AR),
+             
             datasets: [
               {
-                data: [res[0].tanger, res[0].oriental, res[0].fes, res[0].rabat, res[0].benimalal, res[0].casa, res[0].marrakech, res[0].daraa, res[0].souss_massa, res[0].guelmim, res[0].laayoune, res[0].dakhla],
+                data: res.features.map((item:any)=>item.attributes.Cases),
                 backgroundColor: ["#F7EA0F", "#8DBE67", "#159645", "#65B17E", "#192167", "#0167A7", "#681C66", , "#941365", , "#C81A20", "#D24B2D", "#E07F2D", "#E7A021"],
                 fill: true,
            
@@ -276,11 +219,11 @@ export class DashboradComponent implements OnInit, AfterViewInit {
           },
           options: {
             
-              responsive: false,
-            
+              responsive:true,
+              maintainAspectRatio: true,
             legend: {
               display: true,
-              position:'right',
+              position:'bottom',
               rtl:true,
               Align:'end',
               labels: {
@@ -299,10 +242,136 @@ export class DashboradComponent implements OnInit, AfterViewInit {
             }
           }
         });
+        this.zone.runOutsideAngular(() => {
+          let map= am4core.create("chartdiv", am4maps.MapChart);
+          map.geodata = am4geodata_moroccoLow;
+    
+          // Set projection
+          map.projection = new am4maps.projections.Miller;
+          
+          // Create map polygon series
+          let polygonSeries = map.series.push(new am4maps.MapPolygonSeries());
+          polygonSeries.useGeodata = true;
+          
+          // Configure series
+          let polygonTemplate = polygonSeries.mapPolygons.template;
+          polygonTemplate.tooltipText = "{name} {value}";
+          polygonTemplate.fill = am4core.color("#999");
+          // ... chart code goes here ...
         
+          let hs = polygonTemplate.states.create("hover");
+          hs.properties.fill = am4core.color("#367B25");
+          polygonSeries.heatRules.push({
+            "property": "fill",
+            "target": polygonSeries.mapPolygons.template,
+            "min": am4core.color("#00FF7F"),
+            "max": am4core.color("#006400")
+          });
+          // add heat legend
+          let heatLegend = map.chartContainer.createChild(am4maps.HeatLegend);
+          heatLegend.valign = "bottom";
+          heatLegend.align = "right";
+          heatLegend.width = am4core.percent(100);
+          heatLegend.series = polygonSeries;
+          heatLegend.orientation = "vertical";
+          heatLegend.padding(50, 30, 0, 250);
+          heatLegend.valueAxis.renderer.labels.template.fontSize = 10;
+          heatLegend.valueAxis.renderer.minGridDistance = 40;
+    
+          polygonSeries.mapPolygons.template.events.on("over", event => {
+            handleHover(event.target);
+          });
+    
+          polygonSeries.mapPolygons.template.events.on("hit", event => {
+            handleHover(event.target);
+          });
+    
+          function handleHover(mapPolygon) {
+            if (!isNaN(mapPolygon.dataItem.value)) {
+              heatLegend.valueAxis.showTooltipAt(mapPolygon.dataItem.value);
+            } else {
+              heatLegend.valueAxis.hideTooltip();
+            }
+          }
+    
+          polygonSeries.mapPolygons.template.strokeOpacity = 0.4;
+          polygonSeries.mapPolygons.template.events.on("out", event => {
+            heatLegend.valueAxis.hideTooltip();
+          });
+    
+          map.zoomControl = new am4maps.ZoomControl();
+          map.zoomControl.valign = "top";
+          polygonSeries.data = [
+            {
+              "id": "MA-01",
+              "name": "طنجة - تطوان - الحسيمة",
+            "value": res.features[11].attributes.Cases,
+            
+          },{
+            "id": "MA-02",
+            "name": " الشرق",
+            "value": res.features[6].attributes.Cases,
+            
+          },{
+            "id": "MA-03",
+            "name": "فاس - مكناس",
+            "value": res.features[10].attributes.Cases,
+            
+          },{
+            "id": "MA-04",
+            "name": "الرباط - سلا - القنيطرة",
+            "value": res.features[7].attributes.Cases,
+            
+          },{
+            "id": "MA-05",
+            "name": "بني ملال - خنيفرة",
+            "value": res.features[4].attributes.Cases,
+            
+          },{
+            "id": "MA-06",
+            "name": "الدار البيضاء - سطات",
+            "value": res.features[9].attributes.Cases,
+            
+          },{
+            "id": "MA-07",
+            "name": "مراكش - آسفي",
+            "value": res.features[5].attributes.Cases,
+            
+          },{
+            "id": "MA-08",
+            "name": "درعة - تافيلالت",
+            "value": res.features[0].attributes.Cases,
+            
+          },{
+            "id": "MA-09",
+            "name": "سوس - ماسة",
+            "value": res.features[8].attributes.Cases,
+            
+          },{
+            "id": "MA-10",
+            "name": "كلميم - واد نون",
+            "value": res.features[2].attributes.Cases,
+            
+          },{
+            "id": "MA-11",
+            "name": "العيون - الساقية الحمراء",
+            "value": res.features[3].attributes.Cases,
+            
+          }, {
+            "id": "MA-12",
+            "name": "الداخلة - وادي الذهب",
+            "value": res.features[1].attributes.Cases,
+            
+          }];
+          
+          // Bind "fill" property to "fill" key in data
+          polygonTemplate.propertyFields.fill = "fill";
+          this.chartMap = map;
+        });
 
 
       });
+      
 
 
       

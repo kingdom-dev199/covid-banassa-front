@@ -1,5 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import {DatePipe} from '@angular/common';
 
 import { AppComponent } from './app.component';
 import { DashboradComponent } from './dashborad/dashborad.component';
@@ -22,7 +23,7 @@ import { VectorMapDirective } from './vector-map.directive';
     BrowserModule,
     HttpClientModule,
   ],
-  providers: [],
+  providers: [DatePipe],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
