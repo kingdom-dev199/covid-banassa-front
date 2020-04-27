@@ -82,9 +82,9 @@ export class DashboradComponent implements OnInit, AfterViewInit {
 
         this.totalExclusCases=data.features[data.features.length-1].attributes.Negative_tests;
        
-        this.totalNewCasesToday=data.features[data.features.length-1].attributes.Negative_tests;
-        this.totalNewDeathsToday=data.features[data.features.length-1].attributes.Negative_tests;
-        this.totalNewRecovery=data.features[data.features.length-1].attributes.Negative_tests;
+        this.totalNewCasesToday = data.features[data.features.length - 1].attributes.Cas_Jour;
+        this.totalNewDeathsToday = data.features[data.features.length - 1].attributes.Deces_jour;
+        this.totalNewRecovery = data.features[data.features.length - 1].attributes.Rtabalis_jour;
 
         this.chartAsc = new Chart('canvas2', {
           type: 'line',
