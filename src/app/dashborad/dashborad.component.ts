@@ -21,6 +21,7 @@ export class DashboradComponent implements OnInit, AfterViewInit {
    totalActiveCases:number;
    totalNewCasesToday:number;
    totalNewDeathsToday:number;
+   totalNewRecovery:number;
    totalExclusCases:number;
    dataset=[];
    dailycases=[];
@@ -81,7 +82,10 @@ export class DashboradComponent implements OnInit, AfterViewInit {
 
         this.totalExclusCases=data.features[data.features.length-1].attributes.Negative_tests;
        
-        
+        this.totalNewCasesToday=data.features[data.features.length-1].attributes.Negative_tests;
+        this.totalNewDeathsToday=data.features[data.features.length-1].attributes.Negative_tests;
+        this.totalNewRecovery=data.features[data.features.length-1].attributes.Negative_tests;
+
         this.chartAsc = new Chart('canvas2', {
           type: 'line',
           data: {
@@ -203,7 +207,7 @@ export class DashboradComponent implements OnInit, AfterViewInit {
         console.log(res);
           
         this.chartAsc = new Chart('canvas3', {
-          type: 'pie',
+          type: 'doughnut',
           data: {
             labels: res.features.map((item:any)=>item.attributes.Nom_Région_AR),
              
@@ -220,16 +224,17 @@ export class DashboradComponent implements OnInit, AfterViewInit {
           options: {
             
               responsive:true,
-              maintainAspectRatio: true,
+              maintainAspectRatio: false,
             legend: {
               display: true,
-              position:'bottom',
+              position:'top',
               rtl:true,
-              Align:'end',
+              Align:'right',
               labels: {
-              fontSize:20,
-              boxWidth:40,
-              padding:10
+              fontSize:15,
+              boxWidth:10,
+              padding:2,
+              usePointStyle:true
             }
             },
             scales: {
