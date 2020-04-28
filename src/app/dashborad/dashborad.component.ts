@@ -70,21 +70,21 @@ export class DashboradComponent implements OnInit, AfterViewInit {
       .subscribe((data:any)  => {
         //الحالات المؤكدة
         console.log(data)
-        this.totalCases = data.features[data.features.length-1].attributes.Cas_confirmés;
+        this.totalCases = data.features[data.features.length-2].attributes.Cas_confirmés;
         //المتعافون
-        this.totalRecovred = data.features[data.features.length-1].attributes.Retablis;
+        this.totalRecovred = data.features[data.features.length-2].attributes.Retablis;
         // //الوفيات
-         this.totalDeaths = data.features[data.features.length-1].attributes.Décédés;
+         this.totalDeaths = data.features[data.features.length-2].attributes.Décédés;
 
 
         //حالات تتلقى العلاج
         this.totalActiveCases = this.totalCases-this.totalDeaths-this.totalRecovred;
 
-        this.totalExclusCases=data.features[data.features.length-1].attributes.Negative_tests;
+        this.totalExclusCases=data.features[data.features.length-2].attributes.Negative_tests;
        
-        this.totalNewCasesToday = data.features[data.features.length - 1].attributes.Cas_Jour;
-        this.totalNewDeathsToday = data.features[data.features.length - 1].attributes.Deces_jour;
-        this.totalNewRecovery = data.features[data.features.length - 1].attributes.Rtabalis_jour;
+        this.totalNewCasesToday = data.features[data.features.length - 2].attributes.Cas_Jour;
+        this.totalNewDeathsToday = data.features[data.features.length - 2].attributes.Deces_jour;
+        this.totalNewRecovery = data.features[data.features.length - 2].attributes.Rtabalis_jour;
 
         this.chartAsc = new Chart('canvas2', {
           type: 'line',
