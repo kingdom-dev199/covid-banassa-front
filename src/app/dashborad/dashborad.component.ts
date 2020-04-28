@@ -70,7 +70,19 @@ export class DashboradComponent implements OnInit, AfterViewInit {
       .subscribe((data:any)  => {
         //الحالات المؤكدة
         console.log(data)
-        this.totalCases = data.features[data.features.length-2].attributes.Cas_confirmés;
+
+        let cuerrentObject=data.features.find((item: any) => new Date(item.attributes.Date).getDate() == new Date().getDate())
+        if(cuerrentObject.length>1)
+        {
+          if (cuerrentObject[cuerrentObject.length - 1].attributes.Cas_confirmés != null)
+          this.totalCases = cuerrentObject[cuerrentObject.length - 1].attributes.Cas_confirmés;
+          else
+          this.totalCases = cuerrentObject[cuerrentObject.length - 2].attributes.Cas_confirmés;
+        } else if (cuerrentObject.length ==1 )
+        {
+          this.totalCases = cuerrentObject[cuerrentObject.length - 1].attributes.Cas_confirmés;
+
+        }
         //المتعافون
         this.totalRecovred = data.features[data.features.length-2].attributes.Retablis;
         // //الوفيات
