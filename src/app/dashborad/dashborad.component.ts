@@ -1,8 +1,11 @@
 import { Component, OnInit, AfterViewInit, NgZone } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, WeekDay } from '@angular/common';
 import * as am4core from "@amcharts/amcharts4/core";
-import * as am4maps from "@amcharts/amcharts4/maps";
+import * as am4maps  from "@amcharts/amcharts4/maps";
+import * as  am4charts from "@amcharts/amcharts4/charts";
+
 import am4geodata_moroccoLow from "@amcharts/amcharts4-geodata/moroccoLow";
+import am4themes_animated from "@amcharts/amcharts4/themes/animated";
 
 import { Chart } from 'chart.js';
 import { BanassiService }from 'src/services/banassi.service';
@@ -33,12 +36,14 @@ export class DashboradComponent implements OnInit, AfterViewInit {
   seriesData: any;
   markersData: any;
   mapOptions: any;
+  lastUpdate: any;
   defaultColors: any = {
     markerColor: '#23b7e5',      // the marker points
     bgColor: 'transparent',      // the background
     scaleColors: ['#878c9a'],    // the color of the region in the serie
     regionFill: '#bbbec6'       // the base region color
   };
+  barChartRace=[];
   private chartMap: am4maps.MapChart;
 
   constructor(public banassiService:BanassiService,private datePipe: DatePipe,private zone: NgZone) {
@@ -58,68 +63,94 @@ export class DashboradComponent implements OnInit, AfterViewInit {
   ngOnInit(){
   //  this.getDailycases();
    this.getTotaleCases();
+   this.getTotaleCasesByHerokuApi();
     // this.getTotalDailyCases();
     // this.getBanassaCovidStats();
-     this.getTotalDailyByRigin();
+  this.getTotalDailyByRigin();
     }
-
- 
+    private getTotaleCasesByHerokuApi() {
+      this.banassiService.getDatabyHerokup()
+        .subscribe((data:any)  => {
+          //الحالات المؤكدة
+          console.log(data)
   
+         
+          this.totalCases = data.data[data.data.length - 1].confirmed;
+          this.lastUpdate = new Date(data.data[data.data.length - 1].pub_date).toLocaleDateString('ar-Ma',{weekday: 'short', day: 'numeric', month: 'short',hour:'numeric',minute:'numeric'});
+  
+          
+          //المتعافون
+          this.totalRecovred = data.data[data.data.length-1].recovered;
+          // //الوفيات
+           this.totalDeaths = data.data[data.data.length-1].deaths;
+           
+  
+  
+          //حالات تتلقى العلاج
+          this.totalActiveCases = this.totalCases-this.totalDeaths-this.totalRecovred;
+  
+          this.totalExclusCases=data.data[data.data.length-1].excluded;
+         
+          this.totalNewCasesToday = (data.data[data.data.length - 1].confirmed)-data.data[data.data.length - 2].confirmed;
+          this.totalNewDeathsToday = (data.data[data.data.length - 1].deaths)-data.data[data.data.length - 2].deaths;
+          this.totalNewRecovery = (data.data[data.data.length - 1].recovered)-data.data[data.data.length - 2].recovered;
+        });  
+      }  
   private getTotaleCases() {
     this.banassiService.getInfoCovid()
       .subscribe((data:any)  => {
         //الحالات المؤكدة
         console.log(data)
 
-        let cuerrentObject=data.features.find((item: any) => new Date(item.attributes.Date).getDate() == new Date().getDate())
-        if(cuerrentObject.length>1)
-        {
-          if (cuerrentObject[cuerrentObject.length - 1].attributes.Cas_confirmés != null)
-          this.totalCases = cuerrentObject[cuerrentObject.length - 1].attributes.Cas_confirmés;
-          else
-          this.totalCases = cuerrentObject[cuerrentObject.length - 2].attributes.Cas_confirmés;
-        } else if (cuerrentObject.length ==1 )
-        {
-          this.totalCases = cuerrentObject[cuerrentObject.length - 1].attributes.Cas_confirmés;
+        // let cuerrentObject=data.features.find((item: any) => new Date(item.attributes.Date).getDate() == new Date().getDate())
+        // if(cuerrentObject.length>1)
+        // {
+        //   if (cuerrentObject[cuerrentObject.length - 1].attributes.Cas_confirmés != null)
+        //   this.totalCases = cuerrentObject[cuerrentObject.length - 1].attributes.Cas_confirmés;
+        //   else
+        //   this.totalCases = cuerrentObject[cuerrentObject.length - 2].attributes.Cas_confirmés;
+        // } else if (cuerrentObject.length ==1 )
+        // {
+        //   this.totalCases = cuerrentObject[cuerrentObject.length - 1].attributes.Cas_confirmés;
 
-        }
-        //المتعافون
-        this.totalRecovred = data.features[data.features.length-2].attributes.Retablis;
-        // //الوفيات
-         this.totalDeaths = data.features[data.features.length-2].attributes.Décédés;
+        // }
+        // //المتعافون
+        // this.totalRecovred = data.features[data.features.length-2].attributes.Retablis;
+        // // //الوفيات
+        //  this.totalDeaths = data.features[data.features.length-2].attributes.Décédés;
 
 
-        //حالات تتلقى العلاج
-        this.totalActiveCases = this.totalCases-this.totalDeaths-this.totalRecovred;
+        // //حالات تتلقى العلاج
+        // this.totalActiveCases = this.totalCases-this.totalDeaths-this.totalRecovred;
 
-        this.totalExclusCases=data.features[data.features.length-2].attributes.Negative_tests;
+        // this.totalExclusCases=data.features[data.features.length-2].attributes.Negative_tests;
        
-        this.totalNewCasesToday = data.features[data.features.length - 2].attributes.Cas_Jour;
-        this.totalNewDeathsToday = data.features[data.features.length - 2].attributes.Deces_jour;
-        this.totalNewRecovery = data.features[data.features.length - 2].attributes.Rtabalis_jour;
+        // this.totalNewCasesToday = data.features[data.features.length - 2].attributes.Cas_Jour;
+        // this.totalNewDeathsToday = data.features[data.features.length - 2].attributes.Deces_jour;
+        // this.totalNewRecovery = data.features[data.features.length - 2].attributes.Rtabalis_jour;
 
         this.chartAsc = new Chart('canvas2', {
           type: 'line',
           data: {
-            labels: data.features.map((item:any)=>this.datePipe.transform(new Date(item.attributes.Date),"MM-dd")).splice(data.features.length-8,data.features.length-1),
+            labels: data.features.map((item:any)=>this.datePipe.transform(new Date(item.attributes.Date),"MM-dd")).splice(data.features.length-58,data.features.length-1),
             datasets: [
               {
                 label:'الحالات المؤكدة',
-                data: data.features.map((item:any)=>item.attributes.Cas_confirmés).splice(data.features.length-8,data.features.length-1),
+                data: data.features.map((item:any)=>item.attributes.Cas_confirmés).splice(data.features.length-58,data.features.length-1),
                 borderColor: "#3cba9f",
                 fill: false
               },
 
               {
                 label:'المتعافون',
-                data: data.features.map((item:any)=>item.attributes.Retablis).splice(data.features.length-8,data.features.length-1),
+                data: data.features.map((item:any)=>item.attributes.Retablis).splice(data.features.length-58,data.features.length-1),
                 borderColor: "#3AB43A",
                 fill: false
               },
 
               {
                 label:'الوفيات',
-                data: data.features.map((item:any)=>item.attributes.Décédés).splice(data.features.length-8,data.features.length-1),
+                data: data.features.map((item:any)=>item.attributes.Décédés).splice(data.features.length-58,data.features.length-1),
                 borderColor: "#b22222",
                 fill: false
               },
@@ -259,6 +290,9 @@ export class DashboradComponent implements OnInit, AfterViewInit {
             }
           }
         });
+
+
+        this.initRace(res);
         this.zone.runOutsideAngular(() => {
           let map= am4core.create("chartdiv", am4maps.MapChart);
           map.geodata = am4geodata_moroccoLow;
@@ -397,9 +431,147 @@ export class DashboradComponent implements OnInit, AfterViewInit {
 
 
 
+ initRace(data:any[])
+{
+  /* Chart code */
+// Themes begin
+am4core.useTheme(am4themes_animated);
+// Themes end
+
+let chart = am4core.create("chartdiv2", am4charts.XYChart);
+chart.padding(40, 40, 40, 40);
+ 
+chart.numberFormatter.bigNumberPrefixes = [
+  { "number": 1e+3, "suffix": "K" },
+  { "number": 1e+6, "suffix": "M" },
+  { "number": 1e+9, "suffix": "B" }
+];
+
+let label = chart.plotContainer.createChild(am4core.Label);
+label.x = am4core.percent(97);
+label.y = am4core.percent(95);
+label.horizontalCenter = "right";
+label.verticalCenter = "middle";
+label.dx = -15;
+label.fontSize = 50;
+
+let playButton = chart.plotContainer.createChild(am4core.PlayButton);
+playButton.x = am4core.percent(97);
+playButton.y = am4core.percent(95);
+playButton.dy = -2;
+playButton.verticalCenter = "middle";
+playButton.events.on("toggled", function(event) {
+  if (event.target.isActive) {
+    play();
+  }
+  else {
+    stop();
+  }
+})
+
+let stepDuration = 200;
+
+let categoryAxis = chart.yAxes.push(new am4charts.CategoryAxis());
+categoryAxis.renderer.grid.template.location = 0;
+categoryAxis.dataFields.category = "network";
+categoryAxis.renderer.minGridDistance = 1;
+categoryAxis.renderer.inversed = true;
+categoryAxis.renderer.grid.template.disabled = true;
+
+let valueAxis = chart.xAxes.push(new am4charts.ValueAxis());
+valueAxis.min = 0;
+valueAxis.rangeChangeEasing = am4core.ease.linear;
+valueAxis.rangeChangeDuration = stepDuration;
+valueAxis.extraMax = 0.1;
+
+let series = chart.series.push(new am4charts.ColumnSeries());
+series.dataFields.categoryY = "network";
+series.dataFields.valueX = "MAU";
+series.tooltipText = "{valueX.value}"
+series.columns.template.strokeOpacity = 0;
+series.columns.template.column.cornerRadiusBottomRight = 5;
+series.columns.template.column.cornerRadiusTopRight = 5;
+series.interpolationDuration = stepDuration;
+series.interpolationEasing = am4core.ease.linear;
+
+let labelBullet = series.bullets.push(new am4charts.LabelBullet())
+labelBullet.label.horizontalCenter = "right";
+labelBullet.label.text = "{values.valueX.workingValue.formatNumber('#.0as')}";
+labelBullet.label.textAlign = "end";
+labelBullet.label.dx = -10;
+
+chart.zoomOutButton.disabled = true;
+
+// as by default columns of the same series are of the same color, we add adapter which takes colors from chart.colors color set
+series.columns.template.adapter.add("fill", function(fill, target){
+  return chart.colors.getIndex(target.dataItem.index);
+});
+
+let day = new Date("03/03/2020");
+console.log(day);
+label.text = day.getDate().toString();
+
+let interval;
+
+function play() {
+  interval = setInterval(function(){
+    nextDay();
+  }, stepDuration)
+  nextDay();
+}
+
+function stop() {
+  if (interval) {
+    clearInterval(interval);
+  }
+}
+
+function nextDay() {
+  this.day= this.day.setDate( this.day.getDate() + 1)
+  console.log(day);
+  console.log(new Date("03/03/2020"));
+  if ( this.day > new Date()) {
+     this.day = new Date("03/03/2020");
+  }
+
+  let newData = allData;
+  let itemsWithNonZero = 0;
+  for (var i = 0; i < chart.data.length; i++) {
+    chart.data[i].MAU = newData[i].MAU;
+    if (chart.data[i].MAU > 0) {
+      itemsWithNonZero++;
+    }
+  }
+
+  if ( this.day == new Date("03/03/2020")) {
+    series.interpolationDuration = stepDuration / 4;
+    valueAxis.rangeChangeDuration = stepDuration / 4;
+  }
+  else {
+    series.interpolationDuration = stepDuration;
+    valueAxis.rangeChangeDuration = stepDuration;
+  }
+
+  chart.invalidateRawData();
+  label.text =  this.day.getDate().toString();
+
+  categoryAxis.zoom({ start: 0, end: itemsWithNonZero / categoryAxis.dataItems.length });
+}
 
 
+categoryAxis.sortBySeries = series;
 
+let allData = data
+
+chart.data = JSON.parse(JSON.stringify(allData));
+categoryAxis.zoom({ start: 0, end: 1 / chart.data.length });
+
+series.events.on("inited", function() {
+  setTimeout(function() {
+    playButton.isActive = true; // this starts interval
+  }, 2000)
+})
+}
 
 
 
