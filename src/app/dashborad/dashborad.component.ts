@@ -44,6 +44,8 @@ export class DashboradComponent implements OnInit, AfterViewInit {
     regionFill: '#bbbec6'       // the base region color
   };
   barChartRace=[];
+   day = new Date("03/03/2020");
+
   private chartMap: am4maps.MapChart;
 
   constructor(public banassiService:BanassiService,private datePipe: DatePipe,private zone: NgZone) {
@@ -94,6 +96,8 @@ export class DashboradComponent implements OnInit, AfterViewInit {
           this.totalNewCasesToday = (data.data[data.data.length - 1].confirmed)-data.data[data.data.length - 2].confirmed;
           this.totalNewDeathsToday = (data.data[data.data.length - 1].deaths)-data.data[data.data.length - 2].deaths;
           this.totalNewRecovery = (data.data[data.data.length - 1].recovered)-data.data[data.data.length - 2].recovered;
+       
+
         });  
       }  
   private getTotaleCases() {
@@ -248,7 +252,8 @@ export class DashboradComponent implements OnInit, AfterViewInit {
       .subscribe((res: any)=> {
         console.log('test');
         console.log(res);
-          
+        this.initRace(res);
+
         this.chartAsc = new Chart('canvas3', {
           type: 'doughnut',
           data: {
@@ -292,7 +297,6 @@ export class DashboradComponent implements OnInit, AfterViewInit {
         });
 
 
-        this.initRace(res);
         this.zone.runOutsideAngular(() => {
           let map= am4core.create("chartdiv", am4maps.MapChart);
           map.geodata = am4geodata_moroccoLow;
@@ -431,8 +435,17 @@ export class DashboradComponent implements OnInit, AfterViewInit {
 
 
 
- initRace(data:any[])
+ initRace(data:any)
 {
+
+  let dataObje={}
+  data.data.forEach((element:any) => {
+   
+
+    dataObje[element.pub_date] = [{ value: element.confirmed, value: element.region_name_en}]
+  });
+  console.log("dataObje")
+  console.log(dataObje)
   /* Chart code */
 // Themes begin
 am4core.useTheme(am4themes_animated);
@@ -469,7 +482,7 @@ playButton.events.on("toggled", function(event) {
   }
 })
 
-let stepDuration = 200;
+let stepDuration = 4000;
 
 let categoryAxis = chart.yAxes.push(new am4charts.CategoryAxis());
 categoryAxis.renderer.grid.template.location = 0;
@@ -485,9 +498,9 @@ valueAxis.rangeChangeDuration = stepDuration;
 valueAxis.extraMax = 0.1;
 
 let series = chart.series.push(new am4charts.ColumnSeries());
-series.dataFields.categoryY = "network";
-series.dataFields.valueX = "MAU";
-series.tooltipText = "{valueX.value}"
+   series.dataFields.categoryY = "region_name_en";
+   series.dataFields.valueX = "confirmed";
+series.tooltipText = "{value}"
 series.columns.template.strokeOpacity = 0;
 series.columns.template.column.cornerRadiusBottomRight = 5;
 series.columns.template.column.cornerRadiusTopRight = 5;
@@ -506,13 +519,11 @@ chart.zoomOutButton.disabled = true;
 series.columns.template.adapter.add("fill", function(fill, target){
   return chart.colors.getIndex(target.dataItem.index);
 });
-
-let day = new Date("03/03/2020");
-console.log(day);
-label.text = day.getDate().toString();
+   let day =  new Date("03/03/2020");
+   label.text = (day.getMonth() + 1) + "/" + day.getDate().toString();
 
 let interval;
-
+let index=0;
 function play() {
   interval = setInterval(function(){
     nextDay();
@@ -527,23 +538,26 @@ function stop() {
 }
 
 function nextDay() {
-  this.day= this.day.setDate( this.day.getDate() + 1)
-  console.log(day);
-  console.log(new Date("03/03/2020"));
-  if ( this.day > new Date()) {
-     this.day = new Date("03/03/2020");
+  day= new Date(day.setDate( day.getDate() + 1));
+  index++;
+  let cuerrentDate = new Date();
+  if (day > cuerrentDate) {
+     day = new Date("03/03/2020");
+     index=0
   }
 
-  let newData = allData;
+  let newData = allData.data;
   let itemsWithNonZero = 0;
+  
+
   for (var i = 0; i < chart.data.length; i++) {
-    chart.data[i].MAU = newData[i].MAU;
-    if (chart.data[i].MAU > 0) {
+    chart.data[i].confirmed = newData[i].confirmed;
+    if (chart.data[i].confirmed > 0) {
       itemsWithNonZero++;
     }
   }
-
-  if ( this.day == new Date("03/03/2020")) {
+  let firtDay = new Date("03/03/2020");
+  if (day == firtDay) {
     series.interpolationDuration = stepDuration / 4;
     valueAxis.rangeChangeDuration = stepDuration / 4;
   }
@@ -553,17 +567,17 @@ function nextDay() {
   }
 
   chart.invalidateRawData();
-  label.text =  this.day.getDate().toString();
-
+  label.text = (day.getMonth()+1) + "/" + day.getDate().toString();
   categoryAxis.zoom({ start: 0, end: itemsWithNonZero / categoryAxis.dataItems.length });
 }
 
 
 categoryAxis.sortBySeries = series;
 
-let allData = data
-
-chart.data = JSON.parse(JSON.stringify(allData));
+let allData:any = data
+console.log('allData')
+console.log(allData)
+   chart.data = JSON.parse(JSON.stringify(allData.data));
 categoryAxis.zoom({ start: 0, end: 1 / chart.data.length });
 
 series.events.on("inited", function() {
