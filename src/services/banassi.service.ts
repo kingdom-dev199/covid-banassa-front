@@ -33,6 +33,7 @@ export class BanassiService {
     return this.http.post(this.baseUrlpost,{type:"get_chart_data"},this.httpOptions); 
   } 
  
+ 
   
   
 

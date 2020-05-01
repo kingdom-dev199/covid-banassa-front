@@ -321,8 +321,52 @@
                 <!--/Graph Card-->
             </div>
             
+            <div class="w-full md:w-1/2 p-3">
+                <!--Graph Card-->
+                <div class="bg-white border rounded shadow">
+                    <div class="border-b p-3" style="text-align:end">
+                        <h5 class="font-bold uppercase text-gray-600 ">المبيان التراكمي لتطور فيروس كورونا في المغرب</h5>
+                    </div>
+                    <div class="p-5">
+                        <div *ngIf="chartCases" style="height: 300px !important;">
+                            <canvas id="canvas6" width="600" height="300">{{ chartCases }}</canvas>
+                        </div>
             
+                    </div>
+                </div>
+                <!--/Graph Card-->
+            </div>
+
+            <div class="w-full md:w-1/2 p-3">
+                <!--Graph Card-->
+                <div class="bg-white border rounded shadow">
+                    <div class="border-b p-3" style="text-align:end">
+                        <h5 class="font-bold uppercase text-gray-600 ">المبيان التراكمي لتطور فيروس كورونا في المغرب</h5>
+                    </div>
+                    <div class="p-5">
+                        <div *ngIf="chartRec" style="height: 300px !important;">
+                            <canvas id="canvas4" width="600" height="300">{{ chartRec }}</canvas>
+                        </div>
             
+                    </div>
+                </div>
+                <!--/Graph Card-->
+            </div>
+            <div class="w-full md:w-1/2 p-3">
+                <!--Graph Card-->
+                <div class="bg-white border rounded shadow">
+                    <div class="border-b p-3" style="text-align:end">
+                        <h5 class="font-bold uppercase text-gray-600 ">المبيان التراكمي لتطور فيروس كورونا في المغرب</h5>
+                    </div>
+                    <div class="p-5">
+                        <div *ngIf="chartDeath" style="height: 300px !important;">
+                            <canvas id="canvas5" width="600" height="300">{{ chartDeath }}</canvas>
+                        </div>
+            
+                    </div>
+                </div>
+                <!--/Graph Card-->
+            </div>
                 <!--/Graph Card-->
         </div>
 

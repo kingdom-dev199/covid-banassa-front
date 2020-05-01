@@ -32,6 +32,10 @@ export class DashboradComponent implements OnInit, AfterViewInit {
   chart = []; // This will hold our chart info
   chartAsc = [];
   chartPie = [];
+  chartCases = [];
+  chartRec = [];
+  chartDeath = [];
+  
   mapName: string;
   seriesData: any;
   markersData: any;
@@ -132,6 +136,7 @@ export class DashboradComponent implements OnInit, AfterViewInit {
         // this.totalNewCasesToday = data.features[data.features.length - 2].attributes.Cas_Jour;
         // this.totalNewDeathsToday = data.features[data.features.length - 2].attributes.Deces_jour;
         // this.totalNewRecovery = data.features[data.features.length - 2].attributes.Rtabalis_jour;
+        this.initRace(data);
 
         this.chartAsc = new Chart('canvas2', {
           type: 'line',
@@ -236,8 +241,124 @@ export class DashboradComponent implements OnInit, AfterViewInit {
             }
           }
         });
+        this.chartCases = new Chart('canvas6', {
+          type: 'line',
+          data: {
+            labels: data.features.map((item:any)=>this.datePipe.transform(new Date(item.attributes.Date),"MM-dd")).splice(data.features.length-8,data.features.length-1),
+            datasets: [
+              {
+                label:'الحالات المؤكدة',
+                data: data.features.map((item:any)=>item.attributes.Cas_Jour).splice(data.features.length-8,data.features.length-1),
+                backgroundColor: "#3cba9f",
+                fill: true
+              } 
+            ]
+             
+          },
+          options: {
+          
+            maintainAspectRatio: false,
+            legend: {
+              display: true,
+              rtl:'right'
+            },
+            scales: {
+              xAxes: [{
+                gridLines: {
+                  drawOnChartArea: false
+                },
+                display: true
+              }],
+              yAxes: [{
+                gridLines: {
+                  drawOnChartArea: false
+                },
+                display: true
+              }],
+            }
+          }
+        });
+        this.chartRec = new Chart('canvas4', {
+          type: 'line',
+          data: {
+            labels: data.features.map((item: any) => this.datePipe.transform(new Date(item.attributes.Date), "MM-dd")).splice(data.features.length - 8, data.features.length - 1),
+            datasets: [
+          
+              {
+                label: 'المتعافون',
+                data: data.features.map((item: any) => item.attributes.Rtabalis_jour).splice(data.features.length - 8, data.features.length - 1),
+                backgroundColor: "#3AB43A",
+                fill: true
+              },
+
+             
+            ]
+
+          },
+          options: {
+
+            maintainAspectRatio: false,
+            legend: {
+              display: true,
+              rtl: 'right'
+            },
+            scales: {
+              xAxes: [{
+                gridLines: {
+                  drawOnChartArea: false
+                },
+                display: true
+              }],
+              yAxes: [{
+                gridLines: {
+                  drawOnChartArea: false
+                },
+                display: true
+              }],
+            }
+          }
+        });
+        this.chartDeath = new Chart('canvas5', {
+          type: 'line',
+          data: {
+            labels: data.features.map((item: any) => this.datePipe.transform(new Date(item.attributes.Date), "MM-dd")).splice(data.features.length - 8, data.features.length - 1),
+            datasets: [
+            
+              {
+                label: 'الوفيات',
+                data: data.features.map((item: any) => item.attributes.Deces_jour).splice(data.features.length - 8, data.features.length - 1),
+                backgroundColor: "#b22222",
+                fill: true
+              },
 
 
+
+            ]
+
+          }, 
+          options: {
+
+            maintainAspectRatio: false,
+            legend: {
+              display: true,
+              rtl: 'right'
+            },
+            scales: {
+              xAxes: [{
+                gridLines: {
+                  drawOnChartArea: false
+                },
+                display: true
+              }],
+              yAxes: [{
+                gridLines: {
+                  drawOnChartArea: false
+                },
+                display: true
+              }],
+            }
+          }
+        });
 
       }), err => {
         console.log(err);
@@ -252,7 +373,6 @@ export class DashboradComponent implements OnInit, AfterViewInit {
       .subscribe((res: any)=> {
         console.log('test');
         console.log(res);
-        this.initRace(res);
 
         this.chartAsc = new Chart('canvas3', {
           type: 'doughnut',
@@ -437,13 +557,31 @@ export class DashboradComponent implements OnInit, AfterViewInit {
 
  initRace(data:any)
 {
+   let nindex = 0
 
-  let dataObje={}
-  data.data.forEach((element:any) => {
+   let items=[]
+  /*let items2=[]
+   data.features.forEach((element:any) => {
+     items1.push({ value: element.attributes.Cases, region: element.attributes.Nom_Région_AR})
+     items2.push({ value: 0, region: element.attributes.Nom_Région_AR})
+     nindex++;
+
+    });*/
+   let dataObje = {} 
+
+   data.features.forEach((element:any) => {
+     items=[]
+     items.push({
+       value: element.attributes.Cas_Jour, region: "الحالات المؤكدة" })
+     items.push({ value: element.attributes.Deces_jour, region: "الوفيات" })
+     items.push({ value: element.attributes.Rtabalis_jour, region: "المتعافون" })
+                
+    dataObje[nindex]=items
+     nindex++;
+
+    });
    
 
-    dataObje[element.pub_date] = [{ value: element.confirmed, value: element.region_name_en}]
-  });
   console.log("dataObje")
   console.log(dataObje)
   /* Chart code */
@@ -482,11 +620,11 @@ playButton.events.on("toggled", function(event) {
   }
 })
 
-let stepDuration = 4000;
+let stepDuration = 1000;
 
 let categoryAxis = chart.yAxes.push(new am4charts.CategoryAxis());
 categoryAxis.renderer.grid.template.location = 0;
-categoryAxis.dataFields.category = "network";
+   categoryAxis.dataFields.category = "region";
 categoryAxis.renderer.minGridDistance = 1;
 categoryAxis.renderer.inversed = true;
 categoryAxis.renderer.grid.template.disabled = true;
@@ -498,9 +636,9 @@ valueAxis.rangeChangeDuration = stepDuration;
 valueAxis.extraMax = 0.1;
 
 let series = chart.series.push(new am4charts.ColumnSeries());
-   series.dataFields.categoryY = "region_name_en";
-   series.dataFields.valueX = "confirmed";
-series.tooltipText = "{value}"
+   series.dataFields.categoryY = "region";
+   series.dataFields.valueX = "value";
+   series.tooltipText = "{valueX.value}"
 series.columns.template.strokeOpacity = 0;
 series.columns.template.column.cornerRadiusBottomRight = 5;
 series.columns.template.column.cornerRadiusTopRight = 5;
@@ -519,8 +657,7 @@ chart.zoomOutButton.disabled = true;
 series.columns.template.adapter.add("fill", function(fill, target){
   return chart.colors.getIndex(target.dataItem.index);
 });
-   let day =  new Date("03/03/2020");
-   label.text = (day.getMonth() + 1) + "/" + day.getDate().toString();
+   label.text = new Date(data.features[0].attributes.Date).getDate() + "/" + (new Date(data.features[0].attributes.Date).getMonth() + 1);
 
 let interval;
 let index=0;
@@ -538,26 +675,22 @@ function stop() {
 }
 
 function nextDay() {
-  day= new Date(day.setDate( day.getDate() + 1));
-  index++;
-  let cuerrentDate = new Date();
-  if (day > cuerrentDate) {
-     day = new Date("03/03/2020");
+    index++;
+  if (index > nindex) {
      index=0
   }
 
-  let newData = allData.data;
+  let newData = allData[index];
   let itemsWithNonZero = 0;
   
 
   for (var i = 0; i < chart.data.length; i++) {
-    chart.data[i].confirmed = newData[i].confirmed;
-    if (chart.data[i].confirmed > 0) {
+    chart.data[i].value = newData[i].value;
+    if (chart.data[i].value > 0) {
       itemsWithNonZero++;
     }
   }
-  let firtDay = new Date("03/03/2020");
-  if (day == firtDay) {
+    if (index == 0) {
     series.interpolationDuration = stepDuration / 4;
     valueAxis.rangeChangeDuration = stepDuration / 4;
   }
@@ -567,23 +700,23 @@ function nextDay() {
   }
 
   chart.invalidateRawData();
-  label.text = (day.getMonth()+1) + "/" + day.getDate().toString();
+  label.text = new Date(data.features[index].attributes.Date).getDate() + "/" + (new Date(data.features[index].attributes.Date).getMonth()+1);
   categoryAxis.zoom({ start: 0, end: itemsWithNonZero / categoryAxis.dataItems.length });
 }
-
+ 
 
 categoryAxis.sortBySeries = series;
 
-let allData:any = data
+   let allData: any = dataObje
 console.log('allData')
 console.log(allData)
-   chart.data = JSON.parse(JSON.stringify(allData.data));
+   chart.data = JSON.parse(JSON.stringify(allData[index]));
 categoryAxis.zoom({ start: 0, end: 1 / chart.data.length });
 
 series.events.on("inited", function() {
   setTimeout(function() {
     playButton.isActive = true; // this starts interval
-  }, 2000)
+  }, 1000)
 })
 }
 
