@@ -244,11 +244,11 @@ export class DashboradComponent implements OnInit, AfterViewInit {
         this.chartCases = new Chart('canvas6', {
           type: 'line',
           data: {
-            labels: data.features.map((item:any)=>this.datePipe.transform(new Date(item.attributes.Date),"MM-dd")).splice(data.features.length-8,data.features.length-1),
+            labels: data.features.map((item:any)=>this.datePipe.transform(new Date(item.attributes.Date),"MM-dd")),
             datasets: [
               {
                 label:'الحالات المؤكدة',
-                data: data.features.map((item:any)=>item.attributes.Cas_Jour).splice(data.features.length-8,data.features.length-1),
+                data: data.features.map((item:any)=>item.attributes.Cas_Jour),
                 backgroundColor: "#3cba9f",
                 fill: true
               } 
@@ -281,12 +281,12 @@ export class DashboradComponent implements OnInit, AfterViewInit {
         this.chartRec = new Chart('canvas4', {
           type: 'line',
           data: {
-            labels: data.features.map((item: any) => this.datePipe.transform(new Date(item.attributes.Date), "MM-dd")).splice(data.features.length - 8, data.features.length - 1),
+            labels: data.features.map((item: any) => this.datePipe.transform(new Date(item.attributes.Date), "MM-dd")),
             datasets: [
           
               {
                 label: 'المتعافون',
-                data: data.features.map((item: any) => item.attributes.Rtabalis_jour).splice(data.features.length - 8, data.features.length - 1),
+                data: data.features.map((item: any) => item.attributes.Rtabalis_jour),
                 backgroundColor: "#3AB43A",
                 fill: true
               },
@@ -321,12 +321,12 @@ export class DashboradComponent implements OnInit, AfterViewInit {
         this.chartDeath = new Chart('canvas5', {
           type: 'line',
           data: {
-            labels: data.features.map((item: any) => this.datePipe.transform(new Date(item.attributes.Date), "MM-dd")).splice(data.features.length - 8, data.features.length - 1),
+            labels: data.features.map((item: any) => this.datePipe.transform(new Date(item.attributes.Date), "MM-dd")),
             datasets: [
             
               {
                 label: 'الوفيات',
-                data: data.features.map((item: any) => item.attributes.Deces_jour).splice(data.features.length - 8, data.features.length - 1),
+                data: data.features.map((item: any) => item.attributes.Deces_jour),
                 backgroundColor: "#b22222",
                 fill: true
               },
@@ -572,9 +572,9 @@ export class DashboradComponent implements OnInit, AfterViewInit {
    data.features.forEach((element:any) => {
      items=[]
      items.push({
-       value: element.attributes.Cas_Jour, region: "الحالات المؤكدة" })
-     items.push({ value: element.attributes.Deces_jour, region: "الوفيات" })
-     items.push({ value: element.attributes.Rtabalis_jour, region: "المتعافون" })
+       value: element.attributes.Cas_confirmés, region: "الحالات المؤكدة" })
+     items.push({ value: element.attributes.Décédés, region: "الوفيات" })
+     items.push({ value: element.attributes.Retablis, region: "المتعافون" })
                 
     dataObje[nindex]=items
      nindex++;
@@ -593,8 +593,8 @@ let chart = am4core.create("chartdiv2", am4charts.XYChart);
 chart.padding(40, 40, 40, 40);
  
 chart.numberFormatter.bigNumberPrefixes = [
-  { "number": 1e+3, "suffix": "K" },
-  { "number": 1e+6, "suffix": "M" },
+  { "number": 1e+6, "suffix": "K" },
+  { "number": 1e+7, "suffix": "M" },
   { "number": 1e+9, "suffix": "B" }
 ];
 
@@ -620,7 +620,7 @@ playButton.events.on("toggled", function(event) {
   }
 })
 
-let stepDuration = 1000;
+let stepDuration = 500;
 
 let categoryAxis = chart.yAxes.push(new am4charts.CategoryAxis());
 categoryAxis.renderer.grid.template.location = 0;
@@ -647,7 +647,7 @@ series.interpolationEasing = am4core.ease.linear;
 
 let labelBullet = series.bullets.push(new am4charts.LabelBullet())
 labelBullet.label.horizontalCenter = "right";
-labelBullet.label.text = "{values.valueX.workingValue.formatNumber('#.0as')}";
+labelBullet.label.text = "{values.valueX.workingValue.formatNumber('#.as')}";
 labelBullet.label.textAlign = "end";
 labelBullet.label.dx = -10;
 
@@ -716,7 +716,7 @@ categoryAxis.zoom({ start: 0, end: 1 / chart.data.length });
 series.events.on("inited", function() {
   setTimeout(function() {
     playButton.isActive = true; // this starts interval
-  }, 1000)
+  }, 500)
 })
 }
 
