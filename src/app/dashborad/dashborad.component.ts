@@ -3,6 +3,7 @@ import { DatePipe, WeekDay } from '@angular/common';
 import * as am4core from "@amcharts/amcharts4/core";
 import * as am4maps  from "@amcharts/amcharts4/maps";
 import * as  am4charts from "@amcharts/amcharts4/charts";
+import Tabulator from 'tabulator-tables';
 
 import am4geodata_moroccoLow from "@amcharts/amcharts4-geodata/moroccoLow";
 import am4themes_animated from "@amcharts/amcharts4/themes/animated";
@@ -35,7 +36,7 @@ export class DashboradComponent implements OnInit, AfterViewInit {
   chartCases = [];
   chartRec = [];
   chartDeath = [];
-  
+  latestRegiondate;
   mapName: string;
   seriesData: any;
   markersData: any;
@@ -48,10 +49,19 @@ export class DashboradComponent implements OnInit, AfterViewInit {
     regionFill: '#bbbec6'       // the base region color
   };
   barChartRace=[];
+  tab = document.createElement('div');
+
    day = new Date("03/03/2020");
-
+    tabledata = [
+      { id: 1, name: "Billy Bob", age: 12, gender: "male", height: 95, col: "red", dob: "14/05/2010" },
+      { id: 2, name: "Jenny Jane", age: 42, gender: "female", height: 142, col: "blue", dob: "30/07/1954" },
+      { id: 3, name: "Steve McAlistaire", age: 35, gender: "male", height: 176, col: "green", dob: "04/11/1982" },
+    ];
   private chartMap: am4maps.MapChart;
-
+  title = 'DemoTabulator';
+  people: any[] = [];
+  columnNames: any[] = [];
+  myTable: Tabulator;
   constructor(public banassiService:BanassiService,private datePipe: DatePipe,private zone: NgZone) {
    
   }
@@ -66,6 +76,32 @@ export class DashboradComponent implements OnInit, AfterViewInit {
       }
     });
   }
+  inittab(data){
+    this.latestRegiondate = new Date(data[0].created_at).toLocaleDateString('ar-Ma', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric' });
+    data.forEach(element => {
+      element['percentage'] = (element.confirmed/this.totalCases)*100
+      // element['percentageRec'] = (element.recovered/this.totalRecovred)*100
+      // element['percentageDeath'] = (element.deaths/this.totalDeaths)*100
+    });
+    
+ 
+    this.columnNames = [
+      { title: "الجهة", field: "region_name_ar" },
+      { title: "عدد الحالات المؤكدة", field: "confirmed" },
+      { title: "نسب الحالات المؤكدة", field: "percentage", sorter: "number", hozAlign: "left", formatter: "progress", width: 100 },
+    // { title: "عدد الحالات الشيفاء", field: "recovered" },
+    //{ title: "نسب الحالات الشيفاء", field: "percentageRec", sorter: "number", hozAlign: "left", formatter: "progress", width: 100 },
+    //{ title: "عدد الوفيات", field: "deaths" },
+    // { title: "نسب الوفيات", field: "percentageDeath", sorter: "number", hozAlign: "left", formatter: "progress", width: 100 },
+
+    ];
+
+    // reference id of div where table is to be displayed (prepend #)
+    this.myTable = new Tabulator("#example-table");
+    this.myTable.setColumns(this.columnNames);
+    this.myTable.setData(data);
+  }
+  
   ngOnInit(){
   //  this.getDailycases();
    this.getTotaleCases();
@@ -73,6 +109,8 @@ export class DashboradComponent implements OnInit, AfterViewInit {
     // this.getTotalDailyCases();
     // this.getBanassaCovidStats();
   this.getTotalDailyByRigin();
+   
+
     }
     private getTotaleCasesByHerokuApi() {
       this.banassiService.getDatabyHerokup()
@@ -369,19 +407,19 @@ export class DashboradComponent implements OnInit, AfterViewInit {
 
     
     private getTotalDailyByRigin(){
-      this.banassiService.getInfoCovidByRegion()
-      .subscribe((res: any)=> {
+      this.banassiService.getDatabyRigionHerokup()
+        .subscribe((res: any)=> {
         console.log('test');
         console.log(res);
 
         this.chartAsc = new Chart('canvas3', {
           type: 'doughnut',
           data: {
-            labels: res.features.map((item:any)=>item.attributes.Nom_Région_AR),
+            labels: res.data.map((item: any) => item.region_name_en),
              
             datasets: [
               {
-                data: res.features.map((item:any)=>item.attributes.Cases),
+                data: res.data.map((item: any) => item.confirmed),
                 backgroundColor: ["#F7EA0F", "#8DBE67", "#159645", "#65B17E", "#192167", "#0167A7", "#681C66", , "#941365", , "#C81A20", "#D24B2D", "#E07F2D", "#E7A021"],
                 fill: true,
            
@@ -423,7 +461,7 @@ export class DashboradComponent implements OnInit, AfterViewInit {
     
           // Set projection
           map.projection = new am4maps.projections.Miller;
-          
+           
           // Create map polygon series
           let polygonSeries = map.series.push(new am4maps.MapPolygonSeries());
           polygonSeries.useGeodata = true;
@@ -480,62 +518,62 @@ export class DashboradComponent implements OnInit, AfterViewInit {
             {
               "id": "MA-01",
               "name": "طنجة - تطوان - الحسيمة",
-            "value": res.features[11].attributes.Cases,
+              "value": res.data[2].confirmed,
             
           },{
             "id": "MA-02",
             "name": " الشرق",
-            "value": res.features[6].attributes.Cases,
+              "value": res.data[6].confirmed,
             
           },{
             "id": "MA-03",
             "name": "فاس - مكناس",
-            "value": res.features[10].attributes.Cases,
+              "value": res.data[3].confirmed,
             
           },{
             "id": "MA-04",
             "name": "الرباط - سلا - القنيطرة",
-            "value": res.features[7].attributes.Cases,
+              "value": res.data[5].confirmed,
             
           },{
             "id": "MA-05",
             "name": "بني ملال - خنيفرة",
-            "value": res.features[4].attributes.Cases,
+              "value": res.data[7].confirmed,
             
           },{
             "id": "MA-06",
             "name": "الدار البيضاء - سطات",
-            "value": res.features[9].attributes.Cases,
+              "value": res.data[0].confirmed,
             
           },{
             "id": "MA-07",
             "name": "مراكش - آسفي",
-            "value": res.features[5].attributes.Cases,
+              "value": res.data[1].confirmed,
             
           },{
             "id": "MA-08",
             "name": "درعة - تافيلالت",
-            "value": res.features[0].attributes.Cases,
+            "value": res.data[4].confirmed,
             
           },{
             "id": "MA-09",
             "name": "سوس - ماسة",
-            "value": res.features[8].attributes.Cases,
+            "value": res.data[8].confirmed,
             
           },{
             "id": "MA-10",
             "name": "كلميم - واد نون",
-            "value": res.features[2].attributes.Cases,
+            "value": res.data[9].confirmed,
             
           },{
             "id": "MA-11",
             "name": "العيون - الساقية الحمراء",
-            "value": res.features[3].attributes.Cases,
+            "value": res.data[10].confirmed,
             
           }, {
             "id": "MA-12",
             "name": "الداخلة - وادي الذهب",
-            "value": res.features[1].attributes.Cases,
+            "value": res.data[11].confirmed,
             
           }];
           
@@ -543,7 +581,7 @@ export class DashboradComponent implements OnInit, AfterViewInit {
           polygonTemplate.propertyFields.fill = "fill";
           this.chartMap = map;
         });
-
+        this.inittab(res.data)
 
       });
       

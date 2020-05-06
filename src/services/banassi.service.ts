@@ -32,6 +32,9 @@ export class BanassiService {
   getDatabyHerokup(){ 
     return this.http.post(this.baseUrlpost,{type:"get_chart_data"},this.httpOptions); 
   } 
+  getDatabyRigionHerokup(){ 
+    return this.http.post(this.baseUrlpost,{type:"get_data"},this.httpOptions); 
+  } 
  
  
   

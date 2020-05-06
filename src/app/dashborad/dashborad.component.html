@@ -276,7 +276,7 @@
                 <!--Graph Card-->
                 <div class="bg-white border rounded shadow">
                     <div class="border-b p-3" style="text-align:end">
-                        <h5 class="font-bold uppercase text-gray-600">مبيان توزيع الحالات حسب الجهات
+                        <h5 class="font-bold uppercase text-gray-600"> {{latestRegiondate}} مبيان توزيع الحالات حسب الجهات
                         </h5>
                     </div>
                     <div class="p-5">
@@ -293,7 +293,7 @@
                 <!--Graph Card-->
                 <div class="bg-white border rounded shadow 	">
                     <div class="border-b p-3 " style="text-align:end">
-                        <h5 class="font-bold uppercase text-gray-600 ">خريطة توزيع الحالات حسب الجهات
+                        <h5 class="font-bold uppercase text-gray-600 "> {{latestRegiondate}} خريطة توزيع الحالات حسب الجهات
                         </h5>
                     </div>
                     <div class="p-5">
@@ -364,6 +364,21 @@
                     <div class="p-5">
                         <div *ngIf="chartDeath" style="height: 300px !important;">
                             <canvas id="canvas5" width="600" height="300">{{ chartDeath }}</canvas>
+                        </div>
+            
+                    </div>
+                </div>
+                <!--/Graph Card-->
+            </div>
+            <div class="w-full md:w-1/2 p-3">
+                <!--Graph Card-->
+                <div class="bg-white border rounded shadow">
+                    <div class="border-b p-3" style="text-align:end">
+                        <h5 class="font-bold uppercase text-gray-600 "> {{latestRegiondate}} المبيان التراكمي لعدد الوفيات كل اليوم  في المغرب</h5>
+                    </div>
+                    <div class="p-5">
+                        <div>
+                            <div id="example-table"></div>
                         </div>
             
                     </div>
