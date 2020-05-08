@@ -77,17 +77,16 @@ export class DashboradComponent implements OnInit, AfterViewInit {
     });
   }
   inittab(data){
-    this.latestRegiondate = new Date(data[0].created_at).toLocaleDateString('ar-Ma', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric' });
     data.forEach(element => {
-      element['percentage'] = (element.confirmed/this.totalCases)*100
+      element['percentage'] = (element.attributes.Cases/this.totalCases)*100
       // element['percentageRec'] = (element.recovered/this.totalRecovred)*100
       // element['percentageDeath'] = (element.deaths/this.totalDeaths)*100
     });
     
  
     this.columnNames = [
-      { title: "الجهة", field: "region_name_ar" },
-      { title: "عدد الحالات المؤكدة", field: "confirmed" },
+      { title: "الجهة", field: "attributes.Nom_Région_AR" },
+      { title: "عدد الحالات المؤكدة", field: "attributes.Cases" },
       { title: "نسب الحالات المؤكدة", field: "percentage", sorter: "number", hozAlign: "left", formatter: "progress", width: 100 },
     // { title: "عدد الحالات الشيفاء", field: "recovered" },
     //{ title: "نسب الحالات الشيفاء", field: "percentageRec", sorter: "number", hozAlign: "left", formatter: "progress", width: 100 },
@@ -406,42 +405,44 @@ export class DashboradComponent implements OnInit, AfterViewInit {
   
 
     
-    private getTotalDailyByRigin(){
-      this.banassiService.getDatabyRigionHerokup()
-        .subscribe((res: any)=> {
+  private getTotalDailyByRigin() {
+    this.banassiService.getInfoCovidByRegion()
+      .subscribe((res: any) => {
+        res.features[2].attributes.Cases=null;
         console.log('test');
         console.log(res);
-
+        
+        this.inittab(res.features)
         this.chartAsc = new Chart('canvas3', {
           type: 'doughnut',
           data: {
-            labels: res.data.map((item: any) => item.region_name_en),
-             
+            labels: res.features.map((item: any) => item.attributes.Nom_Région_AR),
+
             datasets: [
               {
-                data: res.data.map((item: any) => item.confirmed),
+                data: res.features.map((item: any) => item.attributes.Cases),
                 backgroundColor: ["#F7EA0F", "#8DBE67", "#159645", "#65B17E", "#192167", "#0167A7", "#681C66", , "#941365", , "#C81A20", "#D24B2D", "#E07F2D", "#E7A021"],
                 fill: true,
-           
-              } 
+
+              }
             ]
-             
+
           },
           options: {
-            
-              responsive:true,
-              maintainAspectRatio: false,
+
+            responsive: true,
+            maintainAspectRatio: false,
             legend: {
               display: true,
-              position:'top',
-              rtl:true,
-              Align:'right',
+              position: 'top',
+              rtl: true,
+              Align: 'right',
               labels: {
-              fontSize:15,
-              boxWidth:10,
-              padding:2,
-              usePointStyle:true
-            }
+                fontSize: 15,
+                boxWidth: 10,
+                padding: 2,
+                usePointStyle: true
+              }
             },
             scales: {
               xAxes: [{
@@ -456,22 +457,22 @@ export class DashboradComponent implements OnInit, AfterViewInit {
 
 
         this.zone.runOutsideAngular(() => {
-          let map= am4core.create("chartdiv", am4maps.MapChart);
+          let map = am4core.create("chartdiv", am4maps.MapChart);
           map.geodata = am4geodata_moroccoLow;
-    
+
           // Set projection
           map.projection = new am4maps.projections.Miller;
-           
+
           // Create map polygon series
           let polygonSeries = map.series.push(new am4maps.MapPolygonSeries());
           polygonSeries.useGeodata = true;
-          
+
           // Configure series
           let polygonTemplate = polygonSeries.mapPolygons.template;
           polygonTemplate.tooltipText = "{name} {value}";
           polygonTemplate.fill = am4core.color("#999");
           // ... chart code goes here ...
-        
+
           let hs = polygonTemplate.states.create("hover");
           hs.properties.fill = am4core.color("#367B25");
           polygonSeries.heatRules.push({
@@ -490,15 +491,15 @@ export class DashboradComponent implements OnInit, AfterViewInit {
           heatLegend.padding(50, 30, 0, 250);
           heatLegend.valueAxis.renderer.labels.template.fontSize = 10;
           heatLegend.valueAxis.renderer.minGridDistance = 40;
-    
+
           polygonSeries.mapPolygons.template.events.on("over", event => {
             handleHover(event.target);
           });
-    
+
           polygonSeries.mapPolygons.template.events.on("hit", event => {
             handleHover(event.target);
           });
-    
+
           function handleHover(mapPolygon) {
             if (!isNaN(mapPolygon.dataItem.value)) {
               heatLegend.valueAxis.showTooltipAt(mapPolygon.dataItem.value);
@@ -506,89 +507,89 @@ export class DashboradComponent implements OnInit, AfterViewInit {
               heatLegend.valueAxis.hideTooltip();
             }
           }
-    
+
           polygonSeries.mapPolygons.template.strokeOpacity = 0.4;
           polygonSeries.mapPolygons.template.events.on("out", event => {
             heatLegend.valueAxis.hideTooltip();
           });
-    
+
           map.zoomControl = new am4maps.ZoomControl();
           map.zoomControl.valign = "top";
           polygonSeries.data = [
             {
               "id": "MA-01",
               "name": "طنجة - تطوان - الحسيمة",
-              "value": res.data[2].confirmed,
-            
-          },{
-            "id": "MA-02",
-            "name": " الشرق",
-              "value": res.data[6].confirmed,
-            
-          },{
-            "id": "MA-03",
-            "name": "فاس - مكناس",
-              "value": res.data[3].confirmed,
-            
-          },{
-            "id": "MA-04",
-            "name": "الرباط - سلا - القنيطرة",
-              "value": res.data[5].confirmed,
-            
-          },{
-            "id": "MA-05",
-            "name": "بني ملال - خنيفرة",
-              "value": res.data[7].confirmed,
-            
-          },{
-            "id": "MA-06",
-            "name": "الدار البيضاء - سطات",
-              "value": res.data[0].confirmed,
-            
-          },{
-            "id": "MA-07",
-            "name": "مراكش - آسفي",
-              "value": res.data[1].confirmed,
-            
-          },{
-            "id": "MA-08",
-            "name": "درعة - تافيلالت",
-            "value": res.data[4].confirmed,
-            
-          },{
-            "id": "MA-09",
-            "name": "سوس - ماسة",
-            "value": res.data[8].confirmed,
-            
-          },{
-            "id": "MA-10",
-            "name": "كلميم - واد نون",
-            "value": res.data[9].confirmed,
-            
-          },{
-            "id": "MA-11",
-            "name": "العيون - الساقية الحمراء",
-            "value": res.data[10].confirmed,
-            
-          }, {
-            "id": "MA-12",
-            "name": "الداخلة - وادي الذهب",
-            "value": res.data[11].confirmed,
-            
-          }];
-          
+              "value": res.features[11].attributes.Cases,
+
+            }, {
+              "id": "MA-02",
+              "name": " الشرق",
+              "value": res.features[6].attributes.Cases,
+
+            }, {
+              "id": "MA-03",
+              "name": "فاس - مكناس",
+              "value": res.features[10].attributes.Cases,
+
+            }, {
+              "id": "MA-04",
+              "name": "الرباط - سلا - القنيطرة",
+              "value": res.features[7].attributes.Cases,
+
+            }, {
+              "id": "MA-05",
+              "name": "بني ملال - خنيفرة",
+              "value": res.features[4].attributes.Cases,
+
+            }, {
+              "id": "MA-06",
+              "name": "الدار البيضاء - سطات",
+              "value": res.features[9].attributes.Cases,
+
+            }, {
+              "id": "MA-07",
+              "name": "مراكش - آسفي",
+              "value": res.features[5].attributes.Cases,
+
+            }, {
+              "id": "MA-08",
+              "name": "درعة - تافيلالت",
+              "value": res.features[0].attributes.Cases,
+
+            }, {
+              "id": "MA-09",
+              "name": "سوس - ماسة",
+              "value": res.features[8].attributes.Cases,
+
+            }, {
+              "id": "MA-10",
+              "name": "كلميم - واد نون",
+              "value": res.features[2].attributes.Cases,
+
+            }, {
+              "id": "MA-11",
+              "name": "العيون - الساقية الحمراء",
+              "value": res.features[3].attributes.Cases,
+
+            }, {
+              "id": "MA-12",
+              "name": "الداخلة - وادي الذهب",
+              "value": res.features[1].attributes.Cases,
+
+            }];
+
           // Bind "fill" property to "fill" key in data
           polygonTemplate.propertyFields.fill = "fill";
           this.chartMap = map;
         });
-        this.inittab(res.data)
+
 
       });
-      
 
 
-      
-    }
+
+
+  }
 
 
 
