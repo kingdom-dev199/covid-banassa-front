@@ -3,6 +3,7 @@ import { DatePipe, WeekDay } from '@angular/common';
 import * as am4core from "@amcharts/amcharts4/core";
 import * as am4maps  from "@amcharts/amcharts4/maps";
 import * as  am4charts from "@amcharts/amcharts4/charts";
+import * as  updates from '../../assets/updates.json';
 import Tabulator from 'tabulator-tables';
 
 import am4geodata_moroccoLow from "@amcharts/amcharts4-geodata/moroccoLow";
@@ -52,18 +53,15 @@ export class DashboradComponent implements OnInit, AfterViewInit {
   tab = document.createElement('div');
 
    day = new Date("03/03/2020");
-    tabledata = [
-      { id: 1, name: "Billy Bob", age: 12, gender: "male", height: 95, col: "red", dob: "14/05/2010" },
-      { id: 2, name: "Jenny Jane", age: 42, gender: "female", height: 142, col: "blue", dob: "30/07/1954" },
-      { id: 3, name: "Steve McAlistaire", age: 35, gender: "male", height: 176, col: "green", dob: "04/11/1982" },
-    ];
+   currentCases
   private chartMap: am4maps.MapChart;
   title = 'DemoTabulator';
   people: any[] = [];
   columnNames: any[] = [];
   myTable: Tabulator;
   constructor(public banassiService:BanassiService,private datePipe: DatePipe,private zone: NgZone) {
-   
+    this.currentCases = updates;
+      console.log(updates)
   }
 
   ngAfterViewInit(){
@@ -77,8 +75,12 @@ export class DashboradComponent implements OnInit, AfterViewInit {
     });
   }
   inittab(data){
+    let i=0;
     data.forEach(element => {
       element['percentage'] = (element.attributes.Cases/this.totalCases)*100
+      element['addedCasses'] = this.currentCases.default[i].item
+    
+      i++
       // element['percentageRec'] = (element.recovered/this.totalRecovred)*100
       // element['percentageDeath'] = (element.deaths/this.totalDeaths)*100
     });
@@ -87,6 +89,7 @@ export class DashboradComponent implements OnInit, AfterViewInit {
     this.columnNames = [
       { title: "الجهة", field: "attributes.Nom_Région_AR" },
       { title: "عدد الحالات المؤكدة", field: "attributes.Cases" },
+      { title: "عدد الحالات اليوم", field: "addedCasses" },
       { title: "نسب الحالات المؤكدة", field: "percentage", sorter: "number", hozAlign: "left", formatter: "progress", width: 100 },
     // { title: "عدد الحالات الشيفاء", field: "recovered" },
     //{ title: "نسب الحالات الشيفاء", field: "percentageRec", sorter: "number", hozAlign: "left", formatter: "progress", width: 100 },
